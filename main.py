@@ -33,8 +33,8 @@ with open('input.json', 'r') as file:
 
 L = 10 * 1e-6 # 10um w metrach
 num_points = 1000
-start_value = 1.35e-6 #początkowy zakres częstotliwości
-end_value = 1.7e-6 #końcowy zakres częstotliwości
+start_value = 1.35e-6 #początkowy zakres fal
+end_value = 1.7e-6 #końcowy zakres fal
 wavelengths = np.linspace(start_value, end_value, num_points)
 
 for single_case in data:

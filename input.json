@@ -1,8 +1,7 @@
 [
   {
     "n_eff": 1.567,
-    "grating_period": 0.15e-6,
-    "mode_coupling_coef": 0.8,
-    "phi_coef": 0.9
+    "grating_period": 0.1e-4,
+    "mode_coupling_coef": 1.33
   }
 ]
