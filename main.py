@@ -5,8 +5,9 @@ import numpy as np
 def case_1_calculations(phi, k_g, L, wavelengths):
     # strona 19, slajd 37, P_f(z)
     result = []
+    ro = math.sqrt(phi**2 - k_g**2)
     for single_point in wavelengths:
-        result.append((phi**2 + (k_g**2 * (math.sin(phi * (single_point - L)))**2) ) / (phi**2 + k_g**2 * (math.sin(phi*L))**2 ))
+        result.append((ro ** 2 + (k_g ** 2 * (math.sin(ro * (single_point - L))) ** 2)) / (ro ** 2 + k_g ** 2 * (math.sin(ro * L)) ** 2))
     return result
 
 def case_2_calculations(k_g, L, wavelengths):
@@ -47,9 +48,20 @@ for single_case in data:
     case_2_condition = abs(phi) == k_g
     case_3_condition = abs(phi) < k_g
     transmitance_case_1 = case_1_calculations(phi, k_g, L, wavelengths)
-    transmitance_case_2 = case_2_calculations(k_g, L, wavelengths)
-    transmitance_case_3 = case_3_calculations(phi, k_g, L, wavelengths)
-    final_transmitance
+    #transmitance_case_2 = case_2_calculations(k_g, L, wavelengths)
+    #transmitance_case_3 = case_3_calculations(phi, k_g, L, wavelengths)
+    final = []
+    for index, single_point in enumerate(wavelengths):
+        if single_point < pass_band_1_condition or single_point < pass_band_2_condition:
+            final.append(transmitance_case_1[index])
+            continue
+        #final.append(transmitance_case_3[index])
+        final.append(0)
+    plt.plot(final)
+    plt.xlabel("Wavelength")
+    plt.ylabel("Response")
+    plt.grid(True)
+    plt.show()
 
 
 
