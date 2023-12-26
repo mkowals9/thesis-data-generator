@@ -7,8 +7,7 @@ Dane wejściowe są przechowywane w pliku JSON o nazwie "input". Zawierają list
 {
   "n_eff": ...,
   "grating_period": ...,
-  "mode_coupling_coef": ...,
-  "phi_coef": ...
+  "mode_coupling_coef": ...
 }
 ```
 
@@ -16,7 +15,7 @@ Gdzie:
 + *n_eff* - efektywny współczynnik,
 + *grating_period* - okres siatki,
 + *mode_coupling_coef* - współczynnik sprzężenia,
-+ *phi_coef* - współczynnik pokrycia.
+
 Dodatkowo, zakłada się, że długość siatki jest stała i wynosi `10μm`.
 
 ## Wzory
