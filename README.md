@@ -13,11 +13,11 @@ Dane wejściowe są przechowywane w pliku JSON o nazwie "input". Zawierają list
 ```
 
 Gdzie:
-    * n_eff to efektywny współczynnik,
-    * grating_period to okres siatki,
-    * mode_coupling_coef to wartość współczynnika sprzężenia,
-    * butt_coupling_coef to wartość współczynnika pokrycia.
-Dodatkowo, zakłada się, że długość siatki jest stała.
++ *n_eff* - efektywny współczynnik,
++ *grating_period* - okres siatki,
++ *mode_coupling_coef* - współczynnik sprzężenia,
++ *butt_coupling_coef* - współczynnik pokrycia.
+Dodatkowo, zakłada się, że długość siatki jest stała i wynosi ``.
 
 ## Wzory
 Wszelkie wzory, założenia wykorzystane w generacji danych zostały wzięte z https://empossible.net/wp-content/uploads/2020/01/Lecture-Coupled-Mode-Theory.pdf?fbclid=IwAR0nP0KZ6HjWEc875-HIVLuTUKttmAB_B5cVw5brq-z-gdiNxhbL_sVJTXg (strony 17-20) 
