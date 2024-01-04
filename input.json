@@ -1,7 +1,7 @@
 [
   {
-    "n_eff": 1.567,
-    "grating_period": 0.1e-4,
+    "n_eff": 1.447,
+    "grating_period": 535.59e-9,
     "mode_coupling_coef": 1.33
   }
 ]
