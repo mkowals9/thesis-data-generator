@@ -16,7 +16,7 @@ Gdzie:
 + *grating_period* - okres siatki,
 + *mode_coupling_coef* - współczynnik sprzężenia,
 
-Dodatkowo, zakłada się, że długość siatki jest stała i wynosi `10μm`.
+Dodatkowo, zakłada się, że długość siatki jest stała i wynosi `90μm`.
 
 ## Wzory
-Wszelkie wzory, założenia wykorzystane w generacji danych zostały wzięte z https://empossible.net/wp-content/uploads/2020/01/Lecture-Coupled-Mode-Theory.pdf?fbclid=IwAR0nP0KZ6HjWEc875-HIVLuTUKttmAB_B5cVw5brq-z-gdiNxhbL_sVJTXg (strony 17-20) 
+Wszelkie wzory, założenia wykorzystane w generacji danych zostały wzięte z https://core.ac.uk/display/8986606?utm_source=pdf&utm_medium=banner&utm_campaign=pdf-decoration-v1 
