@@ -8,8 +8,8 @@ with open('input.json', 'r') as file:
 
 L = 9 * 1e-4  # w metrach
 num_points = 1000
-start_value = 1.35e-6  # początkowy zakres fal
-end_value = 1.7e-6  # końcowy zakres fal
+start_value = 1.5e-6  # początkowy zakres fal
+end_value = 1.6e-6  # końcowy zakres fal
 wavelengths = np.linspace(start_value, end_value, num_points)
 
 for single_case in data:
@@ -20,14 +20,13 @@ for single_case in data:
     final = []
     for index, single_point in enumerate(wavelengths):
         ro = 2 * cmath.pi * n_eff * (1 / single_point - 1 / bragg_wavelength)
-        k = ro + 0.001
         gamma_b = cmath.sqrt(k ** 2 - ro ** 2) if k ** 2 > ro ** 2 else 1j * cmath.sqrt(ro ** 2 - k ** 2)
         reflectance = (k ** 2 * cmath.sinh(gamma_b * L) ** 2) / (
                     ro ** 2 * cmath.sinh(gamma_b * L) ** 2 + gamma_b ** 2 * cmath.cosh(gamma_b * L) ** 2)
-        final.append(reflectance)
+        final.append(1-reflectance)
 
     plt.plot(wavelengths, final)
     plt.xlabel("Wavelength")
-    plt.ylabel("Response")
+    plt.ylabel("Transmittance")
     plt.grid(True)
     plt.show()
