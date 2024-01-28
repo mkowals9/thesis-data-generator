@@ -3,5 +3,10 @@
     "n_eff": 1.447,
     "grating_period": 535.59e-9,
     "mode_coupling_coef": 1.33
+  },
+  {
+    "n_eff": 1.4,
+    "grating_period": 542.29e-9,
+    "mode_coupling_coef": 1.3
   }
 ]
