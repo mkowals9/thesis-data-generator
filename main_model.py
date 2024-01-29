@@ -30,7 +30,7 @@ for single_case in data:
     plt.plot(wavelengths, final_reflectance)
     plt.xlabel("Wavelength")
     plt.ylabel("Reflectance")
-    plt.title("Reflectance")
+    plt.title("Reflectance - numerical model")
     stats = (f'$k$ = {k:.2f}\n'
              f'$n_eff$ = {n_eff:.2f}\n'
              f'$period$ = {period:.2e}')
