@@ -3,11 +3,11 @@ import cmath
 import numpy as np
 import matplotlib.pyplot as plt
 
-with open('input.json', 'r') as file:
+with open('input_test.json', 'r') as file:
     data = json.load(file)
 
 L = 19 * 1e-4  # 1.9mm, tu w metrach
-num_points = 1000
+num_points = 500
 start_value = 1.5e-6  # początkowy zakres fal
 end_value = 1.6e-6  # końcowy zakres fal
 wavelengths = np.linspace(start_value, end_value, num_points)
@@ -17,10 +17,13 @@ r_0 = 1
 s_0 = 0
 delta_z = L / M  # dlugosc odcinka i-tego siatki
 
+fringe = 1
+
 for single_case in data:
-    k = single_case["mode_coupling_coef"] / L
+    # k = single_case["mode_coupling_coef"] / L
     n_eff = single_case["n_eff"]
     period = single_case["grating_period"]
+    delta_n_eff = single_case["delta_n_eff"]
     bragg_wavelength = 2 * n_eff * period
     # condition_for_M = M < (2 * n_eff * L) // bragg_wavelength
     final_reflectance = []
@@ -30,7 +33,9 @@ for single_case in data:
 
     for wavelength in wavelengths:
         all_R_matrices_per_wavelength = []
-        sigma = 2 * cmath.pi * n_eff * (1 / wavelength - 1 / bragg_wavelength)
+        sigma = 2 * cmath.pi * n_eff * (1 / wavelength - 1 / bragg_wavelength) + (
+                    2 * cmath.pi / wavelength) * delta_n_eff
+        k = (cmath.pi / wavelength) * fringe * delta_n_eff / L
         for index in range(1, M):
             gamma_B = cmath.sqrt(k ** 2 - sigma ** 2)
             left_top = cmath.cosh(gamma_B * delta_z) - 1j * (sigma / gamma_B) * cmath.sinh(gamma_B * delta_z)
@@ -41,7 +46,7 @@ for single_case in data:
             all_R_matrices_per_wavelength.append(matrix_f_i)
         multiplied_R_matrices = all_R_matrices_per_wavelength[0]
         for matrix_index in range(1, len(all_R_matrices_per_wavelength)):
-            multiplied_R_matrices = np.dot(all_R_matrices_per_wavelength[matrix_index], multiplied_R_matrices)
+            multiplied_R_matrices = np.matmul(all_R_matrices_per_wavelength[matrix_index], multiplied_R_matrices)
         final_output_R = np.array(multiplied_R_matrices) * R_0
         reflectance = np.abs(final_output_R[1, 0] / final_output_R[0, 0]) ** 2
         final_reflectance.append(reflectance)
@@ -51,11 +56,11 @@ for single_case in data:
     plt.xlabel("Wavelength")
     plt.ylabel("Reflectance")
     plt.title("Reflectance - piecewise-uniform model")
-    stats = (f'$k$ = {k:.2f}\n'
-             f'$n_eff$ = {n_eff:.2f}\n'
-             f'$period$ = {period:.2e}')
+    stats = (f'delta_n_eff = {delta_n_eff:.2e}\n'
+             f'n_eff = {n_eff:.2f}\n'
+             f'period = {period:.2e}')
     bbox = dict(boxstyle='round', fc='blanchedalmond', ec='orange', alpha=0.5)
-    plt.text(1.01, 0.95, stats, fontsize=12, bbox=bbox, transform=plt.gca().transAxes,
+    plt.text(0.95, 1.1, stats, fontsize=10, bbox=bbox, transform=plt.gca().transAxes,
              verticalalignment='top', horizontalalignment='left')
     plt.grid(True)
     plt.show()
@@ -64,11 +69,7 @@ for single_case in data:
     plt.xlabel("Wavelength")
     plt.ylabel("Transmittance")
     plt.title("Transmittance - piecewise-uniform model")
-    stats = (f'$k$ = {k:.2f}\n'
-             f'$n_eff$ = {n_eff:.2f}\n'
-             f'$period$ = {period:.2e}')
-    bbox = dict(boxstyle='round', fc='blanchedalmond', ec='orange', alpha=0.5)
-    plt.text(1.01, 0.95, stats, fontsize=12, bbox=bbox, transform=plt.gca().transAxes,
+    plt.text(0.95, 1.1, stats, fontsize=10, bbox=bbox, transform=plt.gca().transAxes,
              verticalalignment='top', horizontalalignment='left')
     plt.grid(True)
     plt.show()
