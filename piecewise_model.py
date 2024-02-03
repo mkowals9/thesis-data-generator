@@ -25,12 +25,12 @@ for single_case in data:
     bragg_wavelength = 2 * n_eff * period
     # condition = (2 * n_eff * L) // bragg_wavelength
     final_reflectance = []
+    final_transmittance = []
     R_0 = 1  # R - the forward propagating wave
     S_0 = 0  # S - the backward propagating wave
 
     for wavelength in wavelengths:
         all_R_matrices_per_wavelength = []
-        all_S_matrices_per_wavelength = []
         sigma = 2 * cmath.pi * n_eff * (1 / wavelength - 1 / bragg_wavelength)
         for index in range(1, M):
             gamma_B = cmath.sqrt(k ** 2 - sigma ** 2)
@@ -42,29 +42,35 @@ for single_case in data:
             if index != 1:
                 R_i = matrix_f_i * all_R_matrices_per_wavelength[
                     index - 2]  # bo indeksy tablicy mamy od 0,1 a index leci od 1
-                S_i = matrix_f_i * all_S_matrices_per_wavelength[index - 2]
                 all_R_matrices_per_wavelength.append(R_i)
-                all_S_matrices_per_wavelength.append(S_i)
             else:
                 R_i = matrix_f_i * R_0
-                S_i = matrix_f_i * S_0
                 all_R_matrices_per_wavelength.append(R_i)
-                all_S_matrices_per_wavelength.append(S_i)
         multiplied_R_matrices = all_R_matrices_per_wavelength[0]
-        multiplied_S_matrices = all_S_matrices_per_wavelength[0]
         for matrix in all_R_matrices_per_wavelength:
             multiplied_R_matrices = np.dot(multiplied_R_matrices, matrix)
-        for matrix in all_S_matrices_per_wavelength[1:]:
-            multiplied_S_matrices = np.dot(multiplied_S_matrices, matrix)
         final_output_R = np.array(multiplied_R_matrices) * R_0
-        final_output_S = np.array(multiplied_S_matrices) * S_0
         reflectance = np.abs(final_output_R[1, 0] / final_output_R[0, 0]) ** 2
         final_reflectance.append(reflectance)
+        final_transmittance.append(1 - reflectance)
 
     plt.plot(wavelengths, final_reflectance)
     plt.xlabel("Wavelength")
     plt.ylabel("Reflectance")
     plt.title("Reflectance - piecewise-uniform model")
+    stats = (f'$k$ = {k:.2f}\n'
+             f'$n_eff$ = {n_eff:.2f}\n'
+             f'$period$ = {period:.2e}')
+    bbox = dict(boxstyle='round', fc='blanchedalmond', ec='orange', alpha=0.5)
+    plt.text(1.01, 0.95, stats, fontsize=12, bbox=bbox, transform=plt.gca().transAxes,
+             verticalalignment='top', horizontalalignment='left')
+    plt.grid(True)
+    plt.show()
+
+    plt.plot(wavelengths, final_transmittance)
+    plt.xlabel("Wavelength")
+    plt.ylabel("Transmittance")
+    plt.title("Transmittance - piecewise-uniform model")
     stats = (f'$k$ = {k:.2f}\n'
              f'$n_eff$ = {n_eff:.2f}\n'
              f'$period$ = {period:.2e}')

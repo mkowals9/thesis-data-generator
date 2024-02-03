@@ -43,7 +43,7 @@ for single_case in data:
     plt.plot(wavelengths, final_transmittance)
     plt.xlabel("Wavelength")
     plt.ylabel("Transmittance")
-    plt.title("Transmittance")
+    plt.title("Transmittance - numerical model")
     stats = (f'$k$ = {k:.2f}\n'
              f'$n_eff$ = {n_eff:.2f}\n'
              f'$period$ = {period:.2e}')
