@@ -23,7 +23,7 @@ for single_case in data:
     n_eff = single_case["n_eff"]
     period = single_case["grating_period"]
     bragg_wavelength = 2 * n_eff * period
-    # condition = (2 * n_eff * L) // bragg_wavelength
+    # condition_for_M = M < (2 * n_eff * L) // bragg_wavelength
     final_reflectance = []
     final_transmittance = []
     R_0 = 1  # R - the forward propagating wave
@@ -39,16 +39,10 @@ for single_case in data:
             right_top = -1j * (k / gamma_B) * cmath.sinh(gamma_B * delta_z)
             right_down = cmath.cosh(gamma_B * delta_z) + 1j * (sigma / gamma_B) * cmath.sinh(gamma_B * delta_z)
             matrix_f_i = np.array([[left_top, right_top], [left_down, right_down]])
-            if index != 1:
-                R_i = matrix_f_i * all_R_matrices_per_wavelength[
-                    index - 2]  # bo indeksy tablicy mamy od 0,1 a index leci od 1
-                all_R_matrices_per_wavelength.append(R_i)
-            else:
-                R_i = matrix_f_i * R_0
-                all_R_matrices_per_wavelength.append(R_i)
+            all_R_matrices_per_wavelength.append(matrix_f_i)
         multiplied_R_matrices = all_R_matrices_per_wavelength[0]
-        for matrix in all_R_matrices_per_wavelength:
-            multiplied_R_matrices = np.dot(multiplied_R_matrices, matrix)
+        for matrix_index in range(1, len(all_R_matrices_per_wavelength)):
+            multiplied_R_matrices = np.dot(all_R_matrices_per_wavelength[matrix_index], multiplied_R_matrices)
         final_output_R = np.array(multiplied_R_matrices) * R_0
         reflectance = np.abs(final_output_R[1, 0] / final_output_R[0, 0]) ** 2
         final_reflectance.append(reflectance)
