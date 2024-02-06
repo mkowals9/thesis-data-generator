@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 with open('input_test.json', 'r') as file:
     data = json.load(file)
 
-L = 19 * 1e-4  # 1.9mm, tu w metrach
-num_points = 500
+L = 1 * 1e-3  # 1.9mm, tu w metrach
+num_points = 5000
 start_value = 1.5e-6  # początkowy zakres fal
 end_value = 1.6e-6  # końcowy zakres fal
 wavelengths = np.linspace(start_value, end_value, num_points)
 
-M = 10  # na ile sekcji dzielimy siatke
+M = 100  # na ile sekcji dzielimy siatke
 r_0 = 1
 s_0 = 0
 delta_z = L / M  # dlugosc odcinka i-tego siatki
@@ -35,7 +35,7 @@ for single_case in data:
         all_R_matrices_per_wavelength = []
         sigma = 2 * cmath.pi * n_eff * (1 / wavelength - 1 / bragg_wavelength) + (
                     2 * cmath.pi / wavelength) * delta_n_eff
-        k = (cmath.pi / wavelength) * fringe * delta_n_eff / L
+        k = (cmath.pi / wavelength) * fringe * delta_n_eff
         for index in range(1, M):
             gamma_B = cmath.sqrt(k ** 2 - sigma ** 2)
             left_top = cmath.cosh(gamma_B * delta_z) - 1j * (sigma / gamma_B) * cmath.sinh(gamma_B * delta_z)

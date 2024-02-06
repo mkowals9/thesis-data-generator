@@ -1,0 +1,50 @@
+[
+  {
+        "n_eff": 1.469,
+        "grating_period": 5.386842105263158e-07,
+        "delta_n_eff": 1e-04
+    },
+  {
+    "n_eff": 1.447,
+    "grating_period": 535.59e-9,
+    "mode_coupling_coef": 1.33,
+    "delta_n_eff": 1e-5
+  },
+  {
+    "n_eff": 1.4,
+    "grating_period": 542.29e-9,
+    "mode_coupling_coef": 1.3,
+    "delta_n_eff": 9.55e-5
+  },
+  {
+    "n_eff": 1.44,
+    "grating_period": 535e-9,
+    "mode_coupling_coef": 47.4639484633579585,
+    "delta_n_eff": 1e-5
+  },
+  {
+        "n_eff": 1.44,
+        "grating_period": 5.35e-07,
+        "delta_n_eff": 4.315789473684211e-05
+    },
+    {
+        "n_eff": 1.44,
+        "grating_period": 5.35e-07,
+        "delta_n_eff": 4.789473684210527e-05
+    },
+{
+        "n_eff": 1.45,
+        "grating_period": 5.4e-07,
+        "delta_n_eff": 0.0001
+    },
+    {
+        "n_eff": 1.4489473684210525,
+        "grating_period": 5.389473684210526e-07,
+        "delta_n_eff": 3.368421052631579e-05
+    },
+  {
+        "n_eff": 1.49,
+        "grating_period": 5.386842105263158e-07,
+        "delta_n_eff": 1.9473684210526318e-05
+    }
+]

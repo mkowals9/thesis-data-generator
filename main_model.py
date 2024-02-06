@@ -6,8 +6,8 @@ import numpy as np
 with open('input_test.json', 'r') as file:
     data = json.load(file)
 
-L = 19 * 1e-4  # 1.9mm, tu w metrach
-num_points = 500
+L = 4 * 1e-3  # 1.9mm, tu w metrach
+num_points = 5000
 start_value = 1.5e-6  # początkowy zakres fal
 end_value = 1.6e-6  # końcowy zakres fal
 wavelengths = np.linspace(start_value, end_value, num_points)
@@ -23,14 +23,14 @@ for single_case in data:
     final_transmittance = []
     for index, single_point in enumerate(wavelengths):
         ro = 2 * cmath.pi * n_eff * (1 / single_point - 1 / bragg_wavelength) + (2*cmath.pi / single_point) * delta_n_eff
-        kappa = ((cmath.pi / single_point) * fringe * delta_n_eff) / L
-        gamma_b = cmath.sqrt(kappa ** 2 - ro ** 2) if kappa ** 2 > ro ** 2 else 1j * cmath.sqrt(ro ** 2 - kappa ** 2)
-        reflectance = (kappa ** 2 * cmath.sinh(gamma_b * L) ** 2) / (
-                ro ** 2 * cmath.sinh(gamma_b * L) ** 2 + gamma_b ** 2 * cmath.cosh(gamma_b * L) ** 2)
+        kappa = ((cmath.pi / single_point) * fringe * delta_n_eff)
+        gamma_b = cmath.sqrt(kappa ** 2 - ro ** 2)
+        reflectance = (cmath.sinh(gamma_b * L) ** 2) / (
+                cmath.cosh(gamma_b * L) ** 2 - ro**2/kappa**2)
         final_reflectance.append(reflectance)
         final_transmittance.append(1 - reflectance)
 
-    plt.plot(wavelengths, final_reflectance)
+    plt.plot(wavelengths*1e9, final_reflectance)
     plt.xlabel("Wavelength")
     plt.ylabel("Reflectance")
     plt.title("Reflectance - numerical model")
@@ -43,7 +43,7 @@ for single_case in data:
     plt.grid(True)
     plt.show()
 
-    plt.plot(wavelengths, final_transmittance)
+    plt.plot(wavelengths*1e9, final_transmittance)
     plt.xlabel("Wavelength")
     plt.ylabel("Transmittance")
     plt.title("Transmittance - numerical model")
