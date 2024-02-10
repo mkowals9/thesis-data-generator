@@ -4,7 +4,7 @@ import numpy as np
 import json
 import random
 
-other_params_points = 20
+other_params_points = 50
 
 min_n_eff = 1.440
 max_n_eff = 1.450
