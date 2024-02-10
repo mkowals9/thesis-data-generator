@@ -1,13 +1,14 @@
 import json
 import cmath
 import numpy as np
-import matplotlib.pyplot as plt
+from display_data import display_data
+
 
 with open('input_test.json', 'r') as file:
     data = json.load(file)
 
-L = 1 * 1e-3  # 1.9mm, tu w metrach
-num_points = 5000
+L = 4 * 1e-3  # 1.9mm, tu w metrach
+num_points = 500
 start_value = 1.5e-6  # początkowy zakres fal
 end_value = 1.6e-6  # końcowy zakres fal
 wavelengths = np.linspace(start_value, end_value, num_points)
@@ -20,7 +21,6 @@ delta_z = L / M  # dlugosc odcinka i-tego siatki
 fringe = 1
 
 for single_case in data:
-    # k = single_case["mode_coupling_coef"] / L
     n_eff = single_case["n_eff"]
     period = single_case["grating_period"]
     delta_n_eff = single_case["delta_n_eff"]
@@ -52,24 +52,10 @@ for single_case in data:
         final_reflectance.append(reflectance)
         final_transmittance.append(1 - reflectance)
 
-    plt.plot(wavelengths, final_reflectance)
-    plt.xlabel("Wavelength")
-    plt.ylabel("Reflectance")
-    plt.title("Reflectance - piecewise-uniform model")
-    stats = (f'delta_n_eff = {delta_n_eff:.2e}\n'
-             f'n_eff = {n_eff:.2f}\n'
-             f'period = {period:.2e}')
-    bbox = dict(boxstyle='round', fc='blanchedalmond', ec='orange', alpha=0.5)
-    plt.text(0.95, 1.1, stats, fontsize=10, bbox=bbox, transform=plt.gca().transAxes,
-             verticalalignment='top', horizontalalignment='left')
-    plt.grid(True)
-    plt.show()
+    ylabel = "Reflectance"
+    title = "Reflectance - piecewise model"
+    display_data(wavelengths, final_reflectance, delta_n_eff, n_eff, period, ylabel, title)
 
-    plt.plot(wavelengths, final_transmittance)
-    plt.xlabel("Wavelength")
-    plt.ylabel("Transmittance")
-    plt.title("Transmittance - piecewise-uniform model")
-    plt.text(0.95, 1.1, stats, fontsize=10, bbox=bbox, transform=plt.gca().transAxes,
-             verticalalignment='top', horizontalalignment='left')
-    plt.grid(True)
-    plt.show()
+    ylabel = "Transmittance"
+    title = "Transmittance - piecewise model"
+    display_data(wavelengths, final_transmittance, delta_n_eff, n_eff, period, ylabel, title)
