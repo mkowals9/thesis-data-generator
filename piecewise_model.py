@@ -7,18 +7,20 @@ from display_data import display_data
 with open('input_test.json', 'r') as file:
     data = json.load(file)
 
-L = 4 * 1e-3  # 1.9mm, tu w metrach
-num_points = 500
-start_value = 1.5e-6  # początkowy zakres fal
-end_value = 1.6e-6  # końcowy zakres fal
+with open('model_config.json', 'r') as file:
+    config = json.load(file)
+
+L = config["L"]  # 4mm, tu w metrach
+num_points = config["num_points"]
+start_value = config["start_value"]  # początkowy zakres fal
+end_value = config["end_value"]  # końcowy zakres fal
 wavelengths = np.linspace(start_value, end_value, num_points)
+fringe = config["fringe"]
 
 M = 100  # na ile sekcji dzielimy siatke
 r_0 = 1
 s_0 = 0
 delta_z = L / M  # dlugosc odcinka i-tego siatki
-
-fringe = 1
 
 for single_case in data:
     n_eff = single_case["n_eff"]
