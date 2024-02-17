@@ -7,16 +7,17 @@ Dane wejściowe są przechowywane w pliku JSON o nazwie "input". Zawierają list
 {
   "n_eff": ...,
   "grating_period": ...,
-  "mode_coupling_coef": ...
+  "delta_n_eff": ...
 }
 ```
 
 Gdzie:
 + *n_eff* - efektywny współczynnik,
 + *grating_period* - okres siatki,
-+ *mode_coupling_coef* - współczynnik sprzężenia,
++ *delta_n_eff* - współczynnik "dc" zmiany efektywnego współczynnika uśrednionego na cały okres siatki (“dc” index change spatially averaged over a grating period),
+  
 
-Dodatkowo, zakłada się, że długość siatki jest stała i wynosi `90μm`.
+Dodatkowo, zakłada się, że długość siatki jest stała i wynosi `4mm`.
 
 ## Wzory
-Wszelkie wzory, założenia wykorzystane w generacji danych zostały wzięte z https://core.ac.uk/display/8986606?utm_source=pdf&utm_medium=banner&utm_campaign=pdf-decoration-v1 
+Wszelkie wzory, założenia wykorzystane w generacji danych zostały wzięte z artykułu "Fiber Grating Spectra" (Turan Erdogan, IEEE)
