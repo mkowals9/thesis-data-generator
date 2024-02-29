@@ -5,6 +5,14 @@ import numpy as np
 from display_data import display_data, save_plots_to_one_gif
 import os
 
+PARAM_25_JSON = 'new_input_25_per_param.json'
+
+PARAM_40_JSON = 'new_input_40_per_param.json'
+
+INPUT_JSON = 'new_input.json'
+
+#moze input jako tak?
+#[[x1, y1],[x2,y2],(…)]
 
 def divide_array(array, num_subarrays):
     # Calculate the size of each subarray
@@ -18,11 +26,12 @@ def divide_array(array, num_subarrays):
     return subarrays
 
 
-with open('new_input.json', 'r') as file:
+with open(PARAM_40_JSON, 'r') as file:
     data = json.load(file)
 
 with open('model_config.json', 'r') as file:
     config = json.load(file)
+
 
 L = config["L"]  # 4mm, tu w metrach
 num_points = config["num_points"]
@@ -36,7 +45,7 @@ model_data = []
 # quarter_length = len(data) // 9
 # random.shuffle(data)
 random.shuffle(data)
-subarrays = divide_array(data, 6)
+subarrays = divide_array(data, 20)
 
 for i, subarray in enumerate(subarrays):
     print(f"Subarray {i + 1}")
@@ -76,7 +85,7 @@ for i, subarray in enumerate(subarrays):
                 "X_z": X_z
             })
 
-    with open(f"data_model_input_with_X_z_{i}.json", "w") as outfile:
+    with open(f"data_model_40_param_input_with_X_z_{i}.json", "w") as outfile:
         json.dump(model_data, outfile, indent=4)
     model_data = []
 
