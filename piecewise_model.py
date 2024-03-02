@@ -6,13 +6,13 @@ import random
 import numpy as np
 from display_data import display_data
 
-with open('input_test.json', 'r') as file:
+with open('new_input_40_per_param.json', 'r') as file:
     data = json.load(file)
 
 with open('model_config.json', 'r') as file:
     config = json.load(file)
 
-N = 10 #ile przykladow (wykresow) chcemy
+N = 1000000 #ile przykladow (wykresow) chcemy
 all_examples = []
 
 L = config["L"]  # tu w metrach
@@ -40,7 +40,7 @@ for example_index in range(N):
 
     # ustalamy parametry per sekcja
     for grating_section_index in range(0, M):
-        random.seed(grating_section_index + M + random.random())
+        random.seed(grating_section_index + M + random.random() + example_index)
         single_case = random.choice(data)
 
         n_eff_all_sections.append(single_case["n_eff"])
@@ -81,12 +81,12 @@ for example_index in range(N):
         final_output_R = np.array(multiplied_R_matrices) * R_0
         reflectance = np.abs(final_output_R[1, 0] / final_output_R[0, 0]) ** 2
         final_reflectance.append(reflectance)
-        final_transmittance.append(1 - reflectance)
+        #final_transmittance.append(1 - reflectance)
 
-    ylabel = "Reflectance"
-    title = "Reflectance - piecewise model"
-    display_data(wavelengths, final_reflectance, ylabel, title, ct, False, False)
-
+    #ylabel = "Reflectance"
+    #title = "Reflectance - piecewise model"
+    #display_data(wavelengths, final_reflectance, ylabel, title, ct, False, False)
+    #display_data(np.linspace(0, 50, 50), n_eff_all_sections, "n_eff", "n_eff per section", ct, False, False)
     all_examples.append({
             "wavelengths": wavelengths.tolist(),
             "reflectance": final_reflectance,
@@ -95,8 +95,14 @@ for example_index in range(N):
             "period": period_all_sections,
             "X_z": X_z_all_sections
         })
+    print(f"Done example {example_index}")
+    if example_index % 200000 == 0:
+        with open(f"data_model_input_{example_index}.json", "w") as outfile:
+            json.dump(all_examples, outfile, indent=4)
+        all_examples = []
+
 # TO SAVE CALCULATIONS AS JSON
-with open(f"data_model_input.json", "w") as outfile:
+with open(f"data_model_input_last.json", "w") as outfile:
     json.dump(all_examples, outfile, indent=4)
 
 # ylabel = "Transmittance"
