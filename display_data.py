@@ -3,6 +3,18 @@ import imageio
 import datetime
 
 
+def display_sections_data(xs, y_axis, ylabel, title,ct, want_save):
+    plt.plot(xs, y_axis, drawstyle='steps-post')
+    plt.xlabel("Section index")
+    plt.ylabel(ylabel)
+    plt.title(title + " " + ct)
+    plt.grid(True)
+    if want_save:
+        plt.savefig(f'./plots/section_example_{ct}.png')
+        plt.clf()
+    else:
+        plt.show()
+
 def display_data(wavelengths, y_axis, ylabel, title,ct, want_save, log_scale):
     plt.plot(wavelengths, y_axis)
     plt.xlabel("Wavelength")
