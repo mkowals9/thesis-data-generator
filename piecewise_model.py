@@ -80,19 +80,19 @@ def set_parabolic_params_per_section():
     Xzs = np.load('./input_data_generated/parabolic_X_z.npy')
     i = 2
     random.seed(random.gauss() + i + M + N)
-    random_value_distr = random.randint(0, len(n_effs))
+    random_value_distr = random.randint(0, len(n_effs)-1)
     n_eff_all_sections = n_effs[random_value_distr]
 
     random.seed(random.gauss() + i + M + N)
-    random_value_distr = random.randint(0, len(delta_n_effs))
+    random_value_distr = random.randint(0, len(delta_n_effs)-1)
     delta_n_eff_all_sections = delta_n_effs[random_value_distr]
 
     random.seed(random.gauss() + i + M + N)
-    random_value_distr = random.randint(0, len(Xzs))
+    random_value_distr = random.randint(0, len(Xzs)-1)
     X_z_all_sections = Xzs[random_value_distr]
 
     random.seed(random.gauss() + i + M + N)
-    random_value_distr = random.randint(0, len(periods))
+    random_value_distr = random.randint(0, len(periods)-1)
     period_all_sections = periods[random_value_distr]
 
     return n_eff_all_sections, delta_n_eff_all_sections, X_z_all_sections, period_all_sections

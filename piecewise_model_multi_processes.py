@@ -8,7 +8,7 @@ import numpy as np
 with open('model_config.json', 'r') as file:
     config = json.load(file)
 
-N = 90000  # ile przykladow (wykresow) chcemy
+N = 100000  # ile przykladow (wykresow) chcemy
 L = config["L"]  # tu w metrach
 num_points = config["num_points"]  # liczba dlugosci fal
 start_value = config["start_value"]  # początkowy zakres fal
@@ -237,24 +237,24 @@ def parabolic_calculate(i):
 
     for example_index in range(N):
         R_0 = 1  # R - the forward propagating wave
-        S_0 = 0  # S - the backward propagating wave
+        # S_0 = 0  # S - the backward propagating wave
 
         # indeks danego elementu = indeks sekcji
         # ustalamy parametry per sekcja
         random.seed(random.gauss() + i + M + N)
-        random_value_distr = random.randint(0, len(n_effs))
+        random_value_distr = random.randint(0, len(n_effs)-1)
         n_eff_all_sections = n_effs[random_value_distr]
 
         random.seed(random.gauss() + i + M + N)
-        random_value_distr = random.randint(0, len(delta_n_effs))
+        random_value_distr = random.randint(0, len(delta_n_effs)-1)
         delta_n_eff_all_sections = delta_n_effs[random_value_distr]
 
         random.seed(random.gauss() + i + M + N)
-        random_value_distr = random.randint(0, len(Xzs))
+        random_value_distr = random.randint(0, len(Xzs)-1)
         X_z_all_sections = Xzs[random_value_distr]
 
         random.seed(random.gauss() + i + M + N)
-        random_value_distr = random.randint(0, len(periods))
+        random_value_distr = random.randint(0, len(periods)-1)
         period_all_sections = periods[random_value_distr]
         final_reflectance = []
 
@@ -263,9 +263,9 @@ def parabolic_calculate(i):
             all_R_matrices_per_wavelength = []
             for param_index in range(0, M - 1):
                 n_eff = n_eff_all_sections[param_index]
-                delta_n_eff = delta_n_eff_all_sections[param_index]
-                X_z = X_z_all_sections[param_index]
-                grating_period = period_all_sections[param_index]
+                delta_n_eff = delta_n_eff_all_sections[param_index] * 1e-4
+                X_z = X_z_all_sections[param_index] * 0.1
+                grating_period = period_all_sections[param_index] * 1e-7
                 bragg_wavelength = 2 * n_eff * grating_period
 
                 sigma = 2 * cmath.pi * n_eff * (1 / wavelength - 1 / bragg_wavelength) + (
@@ -300,15 +300,15 @@ def parabolic_calculate(i):
                 print(f"Done example {example_index} on chunk {i}")
 
     # np.save(f"./results/parabol/model_input_wavelengths_chunk_2603{i}.npy", np.array(all_examples_wavelengths))
-    np.save(f"./results/parabol/model_input_reflectances_chunk_2603{i}.npy", np.array(all_examples_reflectances))
-    np.save(f"./results/parabol/model_input_delta_n_eff_chunk_2603{i}.npy", np.array(all_examples_delta_n_eff))
-    np.save(f"./results/parabol/model_input_period_chunk_2603{i}.npy", np.array(all_examples_period))
-    np.save(f"./results/parabol/model_input_n_eff_chunk_2603{i}.npy", np.array(all_examples_n_eff))
-    np.save(f"./results/parabol/model_input_X_z_chunk_2603{i}.npy", np.array(all_examples_X_z))
+    np.save(f"./results/parabol/model_input_reflectances_chunk_304{i}.npy", np.array(all_examples_reflectances))
+    np.save(f"./results/parabol/model_input_delta_n_eff_chunk_304{i}.npy", np.array(all_examples_delta_n_eff))
+    np.save(f"./results/parabol/model_input_period_chunk_304{i}.npy", np.array(all_examples_period))
+    np.save(f"./results/parabol/model_input_n_eff_chunk_304{i}.npy", np.array(all_examples_n_eff))
+    np.save(f"./results/parabol/model_input_X_z_chunk_304{i}.npy", np.array(all_examples_X_z))
 
 
 if __name__ == '__main__':
-    n_threads = 16
+    n_threads = 17
     threads = []
     for i in range(n_threads):
         t = Process(target=parabolic_calculate, args=(i,))
