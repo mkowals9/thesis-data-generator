@@ -1,5 +1,7 @@
 import math
 import itertools
+import random
+
 import numpy as np
 import json
 import itertools
@@ -103,30 +105,83 @@ def plot_normalized(x_values, normalized_values):
     plt.show()
 
 
-def generate_parabolas(a, b, c, x_values, desired_min, desired_max):
-    values = a * x_values ** 2 + b * x_values + c
+def generate_polynomial(coeffs, x_values, desired_min, desired_max):
+    values = np.polyval(coeffs, x_values)
+    if int(time.time()) % 3 == 0:
+        noise_for_values = generate_noise(15)
+        values = [value + noise_for_values[i] if i % 2 == 0 else value for i, value in enumerate(values)]
     min_value = np.min(values)
     max_value = np.max(values)
     value_ = (max_value - min_value)
     if value_ != 0:
-        normalized_values = (desired_min + (values - min_value) * (desired_max - desired_min) / value_)
+        normalized_values = [(value - min_value) / (max_value - min_value) * (desired_max - desired_min) + desired_min
+                             for value in values]
+        normalized_values = [desired_min if value < desired_min else value for value in normalized_values]
+        normalized_values = [desired_max if value > desired_max else value for value in normalized_values]
         # plot_normalized(x_values, normalized_values)
         return normalized_values
 
 
-def generate_coefficients(num_coefficients, p, q, range_a, seed=None):
+def generate_parabolic_coefficients(num_coefficients, p, q, range_a, seed=None):
     rng = np.random.default_rng(seed)
-    a_values = np.round(rng.uniform(range_a[0], range_a[1], num_coefficients), 4)
-    noise = generate_noise(num_coefficients)
-    b_values = np.round(np.array([-p * 2 * a + noise[a_index] if a_index % 3 == 0 else -p * 2 * a
-                                  for a_index, a in enumerate(a_values)]), 4)
-    c_values = np.round(np.unique(np.array([(4 * a * q + b_values[a_index] ** 2) / (4 * a) if a != 0 else 0
-                                            for a_index, a in enumerate(a_values)])), 4)
+    a_values = np.append(np.round(rng.uniform(range_a[0], range_a[1], num_coefficients), 4), 0)
+    # b_values = np.append(np.round(np.array([-p * 2 * a + noise[a_index] if a_index % 3 == 0 else -p * 2 * a
+    #                                         for a_index, a in enumerate(a_values)]), 4), 0)
+    # c_values = np.append(np.round(np.unique(np.array([(4 * a * q + b_values[a_index] ** 2) / (4 * a) if a != 0 else 0
+    #                                                   for a_index, a in enumerate(a_values)])), 4), 0)
+    b_values = np.append(np.round(rng.uniform(range_a[0] - 1.5, range_a[1] + 1.2, num_coefficients), 4), 0)
+    c_values = np.append(np.round(rng.uniform(range_a[1] - 1.5, range_a[0] + 0.42, num_coefficients), 4), 0)
     return list(zip(a_values, b_values, c_values))
 
 
+def generate_3_polynomical_coefficients(num_coefficients, p, q, range_a, range_c, seed=None):
+    rng = np.random.default_rng(seed)
+    a_values = np.round(rng.uniform(range_a[0], range_a[1], num_coefficients), 4)
+    c_values = np.round(rng.uniform(range_c[0], range_c[1], num_coefficients), 4)
+    noise = generate_noise(num_coefficients)
+    # b_values = np.round(np.array([-p * 3 * a + noise[a_index] if a_index % 3 == 0 else -p * 3 * a
+    # for a_index, a in enumerate(a_values)]), 4)
+    # d_values = np.round(np.unique(np.array([(q - (p ** 3) * a - b_values[a_index] * (p ** 2) - p * c_values[a_index])
+    #          if a != 0 else 0 for a_index, a in enumerate(a_values)])), 4)
+    b_values = np.round(rng.uniform(range_a[0] - 0.5, range_a[1] + 0.82, num_coefficients), 4)
+    d_values = np.round(rng.uniform(range_c[0] + 0.75, range_c[1] - 0.24, num_coefficients), 4)
+    return list(zip(a_values, b_values, c_values, d_values))
+
+
 def generate_noise(num_points):
-    return np.random.uniform(1e-2, 1e-3, size=num_points)
+    return np.random.uniform(1e-2, 1e-1, size=num_points)
+
+
+def generate_3rd_degree_arrays(num_points, range_a, range_c, x_values, y_max, y_min):
+    temp_result = []
+    medium = (y_min + y_max) / 2
+    vertex_values = np.linspace(y_min, y_max, 35)
+    cartesian_product = itertools.product(x_values, vertex_values)
+    for index, combination in enumerate(cartesian_product):
+        p, q = combination
+        coefficients_polynomial = generate_3_polynomical_coefficients(1500, p, q,
+                                                                      range_a, range_c, int(time.time()))
+        for a, b, c, d in coefficients_polynomial:
+            generated = generate_polynomial([a, b, c, d], x_values, y_min, y_max)
+            # if index % 3 == 0:
+            #     generated = np.round(generated + generate_noise(num_points), 3)
+            #     plot_normalized(x_values, generated)
+            # if index % 5 == 0:
+            #     generated = np.round(generated - generate_noise(num_points), 3)
+            # generated = [x if x > 0 else (-1) * x for x in generated]
+
+            # generated_1 = np.flipud(generated)
+            # generated_2 = np.array([2 * medium - y if y > medium else (2 * medium - y) for y in generated])
+            # generated_3 = np.array([2 * medium - y if y > medium else (2 * medium - y) for y in generated_1])
+            # plot_normalized(x_values, generated)
+            # plot_normalized(x_values, generated_1)
+            # plot_normalized(x_values, generated_3)
+            # plot_normalized(x_values, generated_1)
+            # temp_result.append(generated_2)
+            # temp_result.append(generated_3)
+            # temp_result.append(np.array(generated_1))
+            temp_result.append(np.array(generated))
+    return np.unique(temp_result, axis=0)
 
 
 def generate_parabolas_arrays(num_points, range_a, x_values, y_max, y_min):
@@ -136,20 +191,15 @@ def generate_parabolas_arrays(num_points, range_a, x_values, y_max, y_min):
     cartesian_product = itertools.product(x_values, vertex_values)
     for index, combination in enumerate(cartesian_product):
         p, q = combination
-        coefficients_n_effs = (generate_coefficients(1000, p, q, range_a, int(time.time())))
-        for a, b, c in coefficients_n_effs:
-            generated = np.round(generate_parabolas(a, b, c, x_values, y_min, y_max), 3)
-            if index % 3 == 0:
-                generated = np.round(generated + generate_noise(num_points), 3)
-            if index % 5 == 0:
-                generated = np.round(generated - generate_noise(num_points), 3)
-            generated = [x if x > 0 else (-1) * x for x in generated]
-            generated_1 = np.flipud(generated)
-            generated_2 = np.array([2 * medium - y if y > medium else (2 * medium - y) for y in generated])
-            generated_3 = np.array([2 * medium - y if y > medium else (2 * medium - y) for y in generated_1])
-            temp_result.append(generated_2)
-            temp_result.append(generated_3)
-            temp_result.append(np.array(generated_1))
+        coefficients_parabolic = generate_parabolic_coefficients(1500, p, q, range_a, int(time.time()))
+        for a, b, c in coefficients_parabolic:
+            generated = np.round(generate_polynomial([a, b, c], x_values, y_min, y_max), 3)
+            # if index % 3 == 0:
+            #     generated = np.round(generated + generate_noise(num_points), 3)
+            # if index % 5 == 0:
+            #     generated = np.round(generated - generate_noise(num_points), 3)
+            # generated = [x if x > 0 else (-1) * x for x in generated]
+            # temp_result.append(np.array(generated_1))
             temp_result.append(np.array(generated))
     return np.unique(temp_result, axis=0)
 
@@ -166,25 +216,29 @@ def generate_parabolic_distributions():
 
     y_min = 1.440
     y_max = 1.450
-    range_a = (-3, 5)
+    random.seed(int(time.time()))
+    range_a = (random.uniform(-5, 0), random.uniform(0, 5))
     n_effs = generate_parabolas_arrays(num_points, range_a, x_values, y_max, y_min)
     print("Done n_effs")
 
     y_min = 5.350  # 535e-9
     y_max = 5.400  # 540e-9
-    range_a = (-2, 2)
+    random.seed(int(time.time()))
+    range_a = (random.uniform(-2, 0), random.uniform(0, 2))
     grating_periods = generate_parabolas_arrays(num_points, range_a, x_values, y_max, y_min)
     print("Done grating_periods")
 
     y_min = 0.1  # 1e-5
     y_max = 1  # 1e-4
-    range_a = (-1.5, 1.5)
+    random.seed(int(time.time()))
+    range_a = (random.uniform(-1.5, 0), random.uniform(0, 1.5))
     delta_n_effs = generate_parabolas_arrays(num_points, range_a, x_values, y_max, y_min)
     print("Done delta_n_effs")
 
     y_min = 0.1  # 0.01
     y_max = 9.9  # 0.99
-    range_a = (-1.2, 1.6)
+    random.seed(int(time.time()))
+    range_a = (random.uniform(-1.2, 0), random.uniform(0, 1.6))
     X_zs = generate_parabolas_arrays(num_points, range_a, x_values, y_max, y_min)
     print("Done X_z_s")
 
@@ -195,5 +249,62 @@ def generate_parabolic_distributions():
     np.save("./input_data_generated/parabolic_X_z.npy", np.asarray(X_zs))
 
 
+def generate_2nd_and_3rd_degree_distributions():
+    with open('model_config.json', 'r') as file:
+        config = json.load(file)
+
+    L = config["L"] * 1e3
+    num_points = 15
+    x_min = -L / 2
+    x_max = L / 2
+    x_values = np.linspace(x_min, x_max, num_points)
+
+    y_min = 1.440
+    y_max = 1.450
+    random.seed(int(time.time()))
+    range_a = (random.uniform(-1.5, 0), random.uniform(0.001, 0.5))
+    range_c = (random.uniform(-0.3, 0), random.uniform(0.01, 1.2))
+    third_n_effs = generate_3rd_degree_arrays(num_points, range_a, range_c, x_values, y_max, y_min)
+    second_n_effs = generate_parabolas_arrays(num_points, range_a, x_values, y_max, y_min)
+    n_effs = np.unique(np.concatenate((third_n_effs, second_n_effs), axis=0), axis=0)
+    print("Done n_effs")
+
+    y_min = 5.350  # 535e-9
+    y_max = 5.400  # 540e-9
+    random.seed(int(time.time()))
+    range_a = (random.uniform(-2, 0), random.uniform(0, 1.2))
+    range_c = (random.uniform(-1.5, 0.2), random.uniform(0.201, 1))
+    third_grating_periods = generate_3rd_degree_arrays(num_points, range_a, range_c, x_values, y_max, y_min)
+    second_grating_periods = generate_parabolas_arrays(num_points, range_a, x_values, y_max, y_min)
+    grating_periods = np.unique(np.concatenate((third_grating_periods, second_grating_periods), axis=0), axis=0)
+    print("Done grating_periods")
+
+    y_min = 0.1  # 1e-5
+    y_max = 1  # 1e-4
+    random.seed(int(time.time()))
+    range_a = (random.uniform(-2, 0), random.uniform(0, 1.5))
+    range_c = (random.uniform(-2, 0), random.uniform(0, 1.4))
+    third_delta_n_effs = generate_3rd_degree_arrays(num_points, range_a, range_c, x_values, y_max, y_min)
+    second_delta_n_effs = generate_parabolas_arrays(num_points, range_a, x_values, y_max, y_min)
+    delta_n_effs = np.unique(np.concatenate((third_delta_n_effs, second_delta_n_effs), axis=0), axis=0)
+    print("Done delta_n_effs")
+
+    y_min = 0.1  # 0.01
+    y_max = 9.9  # 0.99
+    random.seed(int(time.time()))
+    range_a = (random.uniform(-1.4, 0), random.uniform(0, 0.6))
+    range_c = (random.uniform(-0.6, 0), random.uniform(0, 1.3))
+    third_X_zs = generate_3rd_degree_arrays(num_points, range_a, range_c, x_values, y_max, y_min)
+    second_X_zs = generate_parabolas_arrays(num_points, range_a, x_values, y_max, y_min)
+    X_zs = np.unique(np.concatenate((third_X_zs, second_X_zs), axis=0), axis=0)
+    print("Done X_z_s")
+
+    print("Saving to file")
+    np.save("./input_data_generated/2nd_3rd_degree_n_eff.npy", np.asarray(n_effs))
+    np.save("./input_data_generated/2nd_3rd_degree_period.npy", np.asarray(grating_periods))
+    np.save("./input_data_generated/2nd_3rd_degree_delta_n_eff.npy", np.asarray(delta_n_effs))
+    np.save("./input_data_generated/2nd_3rd_degree_X_z.npy", np.asarray(X_zs))
+
+
 if __name__ == '__main__':
-    generate_parabolic_distributions()
+    generate_2nd_and_3rd_degree_distributions()

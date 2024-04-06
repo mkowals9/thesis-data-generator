@@ -5,10 +5,12 @@ import random
 from multiprocessing import Process
 import numpy as np
 
+import input_data_generator
+
 with open('model_config.json', 'r') as file:
     config = json.load(file)
 
-N = 100000  # ile przykladow (wykresow) chcemy
+N = 150000  # ile przykladow (wykresow) chcemy
 L = config["L"]  # tu w metrach
 num_points = config["num_points"]  # liczba dlugosci fal
 start_value = config["start_value"]  # początkowy zakres fal
@@ -222,18 +224,18 @@ def gauss_calculate(i):
     np.save(f"./results/gauss/model_input_X_z_chunk_23033{i}.npy", np.array(all_examples_X_z))
 
 
-# dane sekcji sa wybierane jako parabola
-def parabolic_calculate(i):
+# dane sekcji sa wybierane jako wielomian 2 lub 3 stopnia
+def polynomial_calculate(i):
     # all_examples_wavelengths = []
     all_examples_reflectances = []
     all_examples_delta_n_eff = []
     all_examples_n_eff = []
     all_examples_period = []
     all_examples_X_z = []
-    n_effs = np.load('./input_data_generated/parabolic_n_eff.npy')
-    delta_n_effs = np.load('./input_data_generated/parabolic_delta_n_eff.npy')
-    periods = np.load('./input_data_generated/parabolic_period.npy')
-    Xzs = np.load('./input_data_generated/parabolic_X_z.npy')
+    n_effs = np.load('./input_data_generated/2nd_3rd_degree_n_eff.npy')
+    delta_n_effs = np.load('./input_data_generated/2nd_3rd_degree_delta_n_eff.npy')
+    periods = np.load('./input_data_generated/2nd_3rd_degree_period.npy')
+    Xzs = np.load('./input_data_generated/2nd_3rd_degree_X_z.npy')
 
     for example_index in range(N):
         R_0 = 1  # R - the forward propagating wave
@@ -242,19 +244,19 @@ def parabolic_calculate(i):
         # indeks danego elementu = indeks sekcji
         # ustalamy parametry per sekcja
         random.seed(random.gauss() + i + M + N)
-        random_value_distr = random.randint(0, len(n_effs)-1)
+        random_value_distr = random.randint(0, len(n_effs) - 1)
         n_eff_all_sections = n_effs[random_value_distr]
 
         random.seed(random.gauss() + i + M + N)
-        random_value_distr = random.randint(0, len(delta_n_effs)-1)
+        random_value_distr = random.randint(0, len(delta_n_effs) - 1)
         delta_n_eff_all_sections = delta_n_effs[random_value_distr]
 
         random.seed(random.gauss() + i + M + N)
-        random_value_distr = random.randint(0, len(Xzs)-1)
+        random_value_distr = random.randint(0, len(Xzs) - 1)
         X_z_all_sections = Xzs[random_value_distr]
 
         random.seed(random.gauss() + i + M + N)
-        random_value_distr = random.randint(0, len(periods)-1)
+        random_value_distr = random.randint(0, len(periods) - 1)
         period_all_sections = periods[random_value_distr]
         final_reflectance = []
 
@@ -300,18 +302,121 @@ def parabolic_calculate(i):
                 print(f"Done example {example_index} on chunk {i}")
 
     # np.save(f"./results/parabol/model_input_wavelengths_chunk_2603{i}.npy", np.array(all_examples_wavelengths))
-    np.save(f"./results/parabol/model_input_reflectances_chunk_304{i}.npy", np.array(all_examples_reflectances))
-    np.save(f"./results/parabol/model_input_delta_n_eff_chunk_304{i}.npy", np.array(all_examples_delta_n_eff))
-    np.save(f"./results/parabol/model_input_period_chunk_304{i}.npy", np.array(all_examples_period))
-    np.save(f"./results/parabol/model_input_n_eff_chunk_304{i}.npy", np.array(all_examples_n_eff))
-    np.save(f"./results/parabol/model_input_X_z_chunk_304{i}.npy", np.array(all_examples_X_z))
+    np.save(f"./results/polynomial/model_input_reflectances_chunk_404{i}.npy", np.array(all_examples_reflectances))
+    np.save(f"./results/polynomial/model_input_delta_n_eff_chunk_404{i}.npy", np.array(all_examples_delta_n_eff))
+    np.save(f"./results/polynomial/model_input_period_chunk_404{i}.npy", np.array(all_examples_period))
+    np.save(f"./results/polynomial/model_input_n_eff_chunk_404{i}.npy", np.array(all_examples_n_eff))
+    np.save(f"./results/polynomial/model_input_X_z_chunk_404{i}.npy", np.array(all_examples_X_z))
+
+
+# do pliku zapisujemmy tylko współczynniki rownan 3 stopnia i reflektancje (x,y), nie n_eff, delta_n_eff, X_z, periods
+def coefficients_calculate(i):
+    all_examples_reflectances = []
+    all_examples_coefficients = []
+
+    for example_index in range(N):
+        R_0 = 1  # R - the forward propagating wave
+        # S_0 = 0  # S - the backward propagating wave
+
+        # indeks danego elementu = indeks sekcji, mamy M sekcji
+        x_values = np.linspace(-L/2, L/2, M)
+        temp_coefficients = []
+        # ustalamy parametry per sekcja, losujemy sobie współczynniki na podstawie wylosowanych współczynników
+        # n_eff
+        random.seed(random.gauss() + i + M + N)
+        a = random.uniform(random.uniform(-1.5, 0.5), random.uniform(0.5, 2.0))
+        b = random.uniform(random.uniform(-2, -0.25), random.uniform(i/4, 4))
+        c = random.uniform(random.uniform(-2.5, 1), random.uniform(i/4-0.75, 4.5))
+        d = random.uniform(random.uniform(-1.75, 0.3), random.uniform(i/5+0.12, 4.44))
+        n_eff_all_sections = input_data_generator.generate_polynomial([a, b, c, d], x_values, 1.44, 1.45)
+        temp_coefficients.append(a)
+        temp_coefficients.append(b)
+        temp_coefficients.append(c)
+        temp_coefficients.append(d)
+
+        random.seed(random.gauss() + i + M + N)
+        a = random.uniform(random.uniform(-1.75, 0.2), random.uniform(0.35, 3.0))
+        b = random.uniform(random.uniform(-2.7, -0.12), random.uniform(i / 4 - 0.75, 4))
+        c = random.uniform(random.uniform(-3.5, 0.1), random.uniform(i / 6 + 0.75, 4.2))
+        d = random.uniform(random.uniform(-1.85, 0.11), random.uniform(i / 5 + 0.12, 3.91))
+        delta_n_eff_all_sections = input_data_generator.generate_polynomial([a, b, c, d], x_values, 0.1, 1)
+        temp_coefficients.append(a)
+        temp_coefficients.append(b)
+        temp_coefficients.append(c)
+        temp_coefficients.append(d)
+
+        random.seed(random.gauss() + i + M + N)
+        a = random.uniform(random.uniform(-2.15, 0.65), random.uniform(0.75, 2.5))
+        b = random.uniform(random.uniform(-2.9, -0.02), random.uniform(i / 4 - 0.95, 3.89))
+        c = random.uniform(random.uniform(-2.75, 0.05), random.uniform(i / 6 + 0.75, 4.1))
+        d = random.uniform(random.uniform(-2.15, 0.01), random.uniform(i / 5 + 0.18, 3.91))
+        X_z_all_sections = input_data_generator.generate_polynomial([a, b, c, d], x_values, 0.1, 9.9)
+        temp_coefficients.append(a)
+        temp_coefficients.append(b)
+        temp_coefficients.append(c)
+        temp_coefficients.append(d)
+
+        random.seed(random.gauss() + i + M + N)
+        a = random.uniform(random.uniform(-1.5, 0), random.uniform(0.01, 3.5))
+        b = random.uniform(random.uniform(-3.2, -0.1), random.uniform(i / 4 - 1.2, 3.89))
+        c = random.uniform(random.uniform(-3.15, 0.09), random.uniform(i / 6 + 1.25, 4.05))
+        d = random.uniform(random.uniform(-2.87, 0.04), random.uniform(i / 5 + 1.18, 2.91))
+        period_all_sections = input_data_generator.generate_polynomial([a, b, c, d], x_values, 5.350, 5.400)
+        temp_coefficients.append(a)
+        temp_coefficients.append(b)
+        temp_coefficients.append(c)
+        temp_coefficients.append(d)
+
+        final_reflectance = []
+
+
+        # reflektancja per długość fali
+        for wavelength in wavelengths:
+            all_R_matrices_per_wavelength = []
+            for param_index in range(0, M - 1):
+                n_eff = n_eff_all_sections[param_index]
+                delta_n_eff = delta_n_eff_all_sections[param_index] * 1e-4
+                X_z = X_z_all_sections[param_index] * 0.1
+                grating_period = period_all_sections[param_index] * 1e-7
+                bragg_wavelength = 2 * n_eff * grating_period
+
+                sigma = 2 * cmath.pi * n_eff * (1 / wavelength - 1 / bragg_wavelength) + (
+                        2 * cmath.pi / wavelength) * delta_n_eff
+                kappa = (X_z * cmath.pi * fringe * delta_n_eff) / wavelength
+                gamma_B = cmath.sqrt(kappa ** 2 - sigma ** 2)
+
+                left_top = cmath.cosh(gamma_B * delta_z) - 1j * (sigma / gamma_B) * cmath.sinh(gamma_B * delta_z)
+                left_down = 1j * (kappa / gamma_B) * cmath.sinh(gamma_B * delta_z)
+                right_top = -1j * (kappa / gamma_B) * cmath.sinh(gamma_B * delta_z)
+                right_down = cmath.cosh(gamma_B * delta_z) + 1j * (sigma / gamma_B) * cmath.sinh(gamma_B * delta_z)
+
+                matrix_f_i = np.array([[left_top, right_top], [left_down, right_down]])
+                all_R_matrices_per_wavelength.append(matrix_f_i)
+
+            multiplied_R_matrices = all_R_matrices_per_wavelength[0]
+            for matrix_index in range(1, len(all_R_matrices_per_wavelength)):
+                multiplied_R_matrices = np.matmul(all_R_matrices_per_wavelength[matrix_index], multiplied_R_matrices)
+            final_output_R = np.array(multiplied_R_matrices) * R_0
+            reflectance = np.abs(final_output_R[1, 0] / final_output_R[0, 0]) ** 2
+            reflectance = reflectance if reflectance >= 0.01 else 0
+            final_reflectance.append(np.array([wavelength, reflectance]))
+
+        # all_examples_wavelengths.append(wavelengths)
+        if max([sublist[1] for sublist in final_reflectance]) > 0:
+            all_examples_reflectances.append(final_reflectance)
+            all_examples_coefficients.append(temp_coefficients)
+            if example_index % 5000 == 0:
+                print(f"Done example {example_index} on chunk {i}")
+
+    np.save(f"./results/coefficients/model_input_reflectances_chunk_404{i}.npy", np.array(all_examples_reflectances))
+    np.save(f"./results/coefficients/model_input_coefficients_chunk_404{i}.npy", np.array(all_examples_coefficients))
 
 
 if __name__ == '__main__':
-    n_threads = 17
+    n_threads = 16
     threads = []
     for i in range(n_threads):
-        t = Process(target=parabolic_calculate, args=(i,))
+        t = Process(target=coefficients_calculate, args=(i,))
         t.start()
         threads.append(t)
 
