@@ -3,15 +3,14 @@ import json
 import cmath
 import os
 import random
-from multiprocessing import Process
 
 import numpy as np
-from display_data import display_data, display_sections_data, save_plots_to_one_gif
+from display_data import display_data, save_plots_to_one_gif
 
 with open('model_config.json', 'r') as file:
     config = json.load(file)
 
-N = 100  # ile przykladow (wykresow) chcemy
+N = 10  # ile przykladow (wykresow) chcemy
 L = config["L"]  # tu w metrach
 num_points = config["num_points"]  # liczba dlugosci fal
 start_value = config["start_value"]  # początkowy zakres fal
@@ -80,20 +79,48 @@ def set_parabolic_params_per_section():
     Xzs = np.load('./input_data_generated/parabolic_X_z.npy')
     i = 2
     random.seed(random.gauss() + i + M + N)
-    random_value_distr = random.randint(0, len(n_effs)-1)
+    random_value_distr = random.randint(0, len(n_effs) - 1)
     n_eff_all_sections = n_effs[random_value_distr]
 
     random.seed(random.gauss() + i + M + N)
-    random_value_distr = random.randint(0, len(delta_n_effs)-1)
+    random_value_distr = random.randint(0, len(delta_n_effs) - 1)
     delta_n_eff_all_sections = delta_n_effs[random_value_distr]
 
     random.seed(random.gauss() + i + M + N)
-    random_value_distr = random.randint(0, len(Xzs)-1)
+    random_value_distr = random.randint(0, len(Xzs) - 1)
     X_z_all_sections = Xzs[random_value_distr]
 
     random.seed(random.gauss() + i + M + N)
-    random_value_distr = random.randint(0, len(periods)-1)
+    random_value_distr = random.randint(0, len(periods) - 1)
     period_all_sections = periods[random_value_distr]
+
+    return n_eff_all_sections, delta_n_eff_all_sections, X_z_all_sections, period_all_sections
+
+
+def set_2nd_and_3rd_params_per_section():
+    n_effs = np.load('./input_data_generated/2nd_3rd_degree_n_eff.npy')
+    delta_n_effs = np.load('./input_data_generated/2nd_3rd_degree_delta_n_eff.npy')
+    periods = np.load('./input_data_generated/2nd_3rd_degree_period.npy')
+    Xzs = np.load('./input_data_generated/2nd_3rd_degree_X_z.npy')
+    i = 12
+    M = 15
+    N = 22
+
+    random.seed(random.gauss() + i + M + N)
+    random_value_distr = random.randint(0, len(n_effs) - 1)
+    n_eff_all_sections = n_effs[random_value_distr]
+
+    random.seed(random.gauss() + i + M + N)
+    random_value_distr = random.randint(0, len(delta_n_effs) - 1)
+    delta_n_eff_all_sections = delta_n_effs[random_value_distr] * 1e-4
+
+    random.seed(random.gauss() + i + M + N)
+    random_value_distr = random.randint(0, len(Xzs) - 1)
+    X_z_all_sections = Xzs[random_value_distr] * 0.1
+
+    random.seed(random.gauss() + i + M + N)
+    random_value_distr = random.randint(0, len(periods) - 1)
+    period_all_sections = periods[random_value_distr] * 1e-7
 
     return n_eff_all_sections, delta_n_eff_all_sections, X_z_all_sections, period_all_sections
 
@@ -107,7 +134,7 @@ for example_index in range(N):
 
     # ustalamy parametry per sekcja
     n_eff_all_sections, delta_n_eff_all_sections, X_z_all_sections, period_all_sections = (
-        set_parabolic_params_per_section())
+        set_2nd_and_3rd_params_per_section())
 
     final_reflectance = []
     final_transmittance = []

@@ -1,6 +1,7 @@
 import math
 import itertools
 import random
+import traceback
 
 import numpy as np
 import json
@@ -119,7 +120,7 @@ def generate_polynomial(coeffs, x_values, desired_min, desired_max):
         normalized_values = [desired_min if value < desired_min else value for value in normalized_values]
         normalized_values = [desired_max if value > desired_max else value for value in normalized_values]
         # plot_normalized(x_values, normalized_values)
-        return normalized_values
+        return np.array(normalized_values)
 
 
 def generate_parabolic_coefficients(num_coefficients, p, q, range_a, seed=None):
@@ -129,8 +130,8 @@ def generate_parabolic_coefficients(num_coefficients, p, q, range_a, seed=None):
     #                                         for a_index, a in enumerate(a_values)]), 4), 0)
     # c_values = np.append(np.round(np.unique(np.array([(4 * a * q + b_values[a_index] ** 2) / (4 * a) if a != 0 else 0
     #                                                   for a_index, a in enumerate(a_values)])), 4), 0)
-    b_values = np.append(np.round(rng.uniform(range_a[0] - 1.5, range_a[1] + 1.2, num_coefficients), 4), 0)
-    c_values = np.append(np.round(rng.uniform(range_a[1] - 1.5, range_a[0] + 0.42, num_coefficients), 4), 0)
+    b_values = np.append(np.round(rng.uniform(range_a[0] - 0.25, range_a[1] + 0.82, num_coefficients), 4), 0)
+    c_values = np.append(np.round(rng.uniform(range_a[0] - 0.17, range_a[1] + 0.29, num_coefficients), 4), 0)
     return list(zip(a_values, b_values, c_values))
 
 
@@ -144,7 +145,7 @@ def generate_3_polynomical_coefficients(num_coefficients, p, q, range_a, range_c
     # d_values = np.round(np.unique(np.array([(q - (p ** 3) * a - b_values[a_index] * (p ** 2) - p * c_values[a_index])
     #          if a != 0 else 0 for a_index, a in enumerate(a_values)])), 4)
     b_values = np.round(rng.uniform(range_a[0] - 0.5, range_a[1] + 0.82, num_coefficients), 4)
-    d_values = np.round(rng.uniform(range_c[0] + 0.75, range_c[1] - 0.24, num_coefficients), 4)
+    d_values = np.round(rng.uniform(range_c[0] - 0.15, range_c[1] + 0.24, num_coefficients), 4)
     return list(zip(a_values, b_values, c_values, d_values))
 
 
@@ -154,15 +155,16 @@ def generate_noise(num_points):
 
 def generate_3rd_degree_arrays(num_points, range_a, range_c, x_values, y_max, y_min):
     temp_result = []
-    medium = (y_min + y_max) / 2
-    vertex_values = np.linspace(y_min, y_max, 35)
+    #medium = (y_min + y_max) / 2
+    vertex_values = np.linspace(y_min, y_max, num_points)
     cartesian_product = itertools.product(x_values, vertex_values)
     for index, combination in enumerate(cartesian_product):
         p, q = combination
-        coefficients_polynomial = generate_3_polynomical_coefficients(1500, p, q,
+        coefficients_polynomial = generate_3_polynomical_coefficients(2000, p, q,
                                                                       range_a, range_c, int(time.time()))
         for a, b, c, d in coefficients_polynomial:
-            generated = generate_polynomial([a, b, c, d], x_values, y_min, y_max)
+            if (a is not None and a != 0) and (b is not None and b != 0) and (c is not None and c != 0):
+                generated = np.round(generate_polynomial([a, b, c, d], x_values, y_min, y_max), 3)
             # if index % 3 == 0:
             #     generated = np.round(generated + generate_noise(num_points), 3)
             #     plot_normalized(x_values, generated)
@@ -180,27 +182,33 @@ def generate_3rd_degree_arrays(num_points, range_a, range_c, x_values, y_max, y_
             # temp_result.append(generated_2)
             # temp_result.append(generated_3)
             # temp_result.append(np.array(generated_1))
-            temp_result.append(np.array(generated))
+            temp_result.append(generated)
     return np.unique(temp_result, axis=0)
 
 
 def generate_parabolas_arrays(num_points, range_a, x_values, y_max, y_min):
     temp_result = []
-    medium = (y_min + y_max) / 2
+    #medium = (y_min + y_max) / 2
     vertex_values = np.linspace(y_min, y_max, num_points)
     cartesian_product = itertools.product(x_values, vertex_values)
     for index, combination in enumerate(cartesian_product):
         p, q = combination
-        coefficients_parabolic = generate_parabolic_coefficients(1500, p, q, range_a, int(time.time()))
+        coefficients_parabolic = generate_parabolic_coefficients(2000, p, q, range_a, int(time.time()))
         for a, b, c in coefficients_parabolic:
-            generated = np.round(generate_polynomial([a, b, c], x_values, y_min, y_max), 3)
+            try:
+                if (a is not None and a != 0) and (b is not None and b != 0) and (c is not None and c != 0):
+                    generated = generate_polynomial([a, b, c], x_values, y_min, y_max)
+                    generated = np.round(generated, 3)
+                    temp_result.append(generated)
+            except Exception as e:
+                traceback.print_exc()
+                print(f"Error {a}, {b}, {c}, {generated}: {e}")
             # if index % 3 == 0:
             #     generated = np.round(generated + generate_noise(num_points), 3)
             # if index % 5 == 0:
             #     generated = np.round(generated - generate_noise(num_points), 3)
             # generated = [x if x > 0 else (-1) * x for x in generated]
             # temp_result.append(np.array(generated_1))
-            temp_result.append(np.array(generated))
     return np.unique(temp_result, axis=0)
 
 
