@@ -1,7 +1,7 @@
 {
     "L": 4e-3,
     "num_points": 800,
-    "start_value": 1.45e-6 ,
-    "end_value": 1.6e-6,
+    "start_value": 1.543e-6 ,
+    "end_value": 1.547e-6,
     "fringe": 1
 }

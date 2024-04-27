@@ -4,7 +4,7 @@ import numpy as np
 import json
 import random
 
-other_params_points = 50
+other_params_points = 3
 
 min_n_eff = 1.440
 max_n_eff = 1.450
@@ -41,5 +41,5 @@ for index, combination in enumerate(cartesian_product):
         "X_z": X_z
     })
 
-with open("new_input.json", "w") as outfile:
+with open("input_test.json", "w") as outfile:
     json.dump(result, outfile, indent=4)
