@@ -1,5 +1,3 @@
-import math
-import itertools
 import random
 import traceback
 
@@ -8,6 +6,59 @@ import json
 import itertools
 import matplotlib.pyplot as plt
 import time
+
+
+# n_eff
+# min 1.44
+# max 1.45
+
+# delta_n_eff
+# min 1e-5
+# max 1e-4
+
+# period
+# min 535e-9
+# max 540e-9
+
+# X(z)
+# min 0.01
+# max 0.99
+
+def generate_linear():
+    other_params_points = 40
+
+    min_n_eff = 1.440
+    max_n_eff = 1.450
+    n_effs = np.linspace(min_n_eff, max_n_eff, other_params_points)
+
+    min_grating_period = 5.350
+    max_grating_period = 5.400
+    grating_periods = np.linspace(min_grating_period, max_grating_period, other_params_points)
+
+    min_delta_n_eff = 0.1
+    max_delta_n_eff = 1
+    delta_n_effs = np.linspace(min_delta_n_eff, max_delta_n_eff, other_params_points)
+
+    min_X_z = 0.1
+    max_X_z = 9.9
+    X_z_s = np.linspace(min_X_z, max_X_z, other_params_points)
+
+    cartesian_product = itertools.product(n_effs, grating_periods, delta_n_effs, X_z_s)
+
+    print("Saving to file")
+
+    result = []
+    for index, combination in enumerate(cartesian_product):
+        n_eff, grating_period, delta_n_eff, X_z = combination
+        result.append({
+            "n_eff": n_eff,
+            "grating_period": grating_period,
+            "delta_n_eff": delta_n_eff,
+            "X_z": X_z
+        })
+
+    with open("./input_data_generated/linear_input.json", "w") as outfile:
+        json.dump(result, outfile, indent=4)
 
 
 def generate_standard():
@@ -47,7 +98,7 @@ def generate_standard():
         json.dump(result, outfile, indent=4)
 
 
-def generate_many_distributions():
+def generate_many_gauss_distributions():
     other_params_points = 5000
 
     e_n_effs = [1.445, 1.442, 1.447]
@@ -155,7 +206,6 @@ def generate_noise(num_points):
 
 def generate_3rd_degree_arrays(num_points, range_a, range_c, x_values, y_max, y_min):
     temp_result = []
-    #medium = (y_min + y_max) / 2
     vertex_values = np.linspace(y_min, y_max, num_points)
     cartesian_product = itertools.product(x_values, vertex_values)
     for index, combination in enumerate(cartesian_product):
@@ -315,4 +365,4 @@ def generate_2nd_and_3rd_degree_distributions():
 
 
 if __name__ == '__main__':
-    generate_2nd_and_3rd_degree_distributions()
+    generate_linear()

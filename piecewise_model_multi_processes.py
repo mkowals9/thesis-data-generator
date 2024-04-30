@@ -401,7 +401,7 @@ def coefficients_calculate(i):
                 multiplied_R_matrices = np.matmul(all_R_matrices_per_wavelength[matrix_index], multiplied_R_matrices)
             final_output_R = np.array(multiplied_R_matrices) * R_0
             reflectance = np.abs(final_output_R[1, 0] / final_output_R[0, 0]) ** 2
-            reflectance = reflectance if reflectance >= 0.01 else 0
+            reflectance = reflectance if reflectance >= 0.0001 else 0
             final_reflectance.append(np.array([wavelength, reflectance]))
 
         if max([sublist[1] for sublist in final_reflectance]) > 0:

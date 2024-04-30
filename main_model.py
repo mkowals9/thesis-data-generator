@@ -1,9 +1,7 @@
 import json
 import cmath
-import random
 import numpy as np
-from display_data import display_data, save_plots_to_one_gif
-import os
+from display_data import display_data
 
 
 with open('input_test.json', 'r') as file:
@@ -45,8 +43,8 @@ for single_case in data:
         final_reflectance.append(reflectance.real)
         # final_transmittance.append(1 - reflectance.real)
 
-    ylabel = "Reflectance"
-    title = "Reflectance - numerical model"
+    ylabel = "Reflektancja"
+    title = "Reflektancja - model analityczny"
     display_data(wavelengths, final_reflectance, delta_n_eff, n_eff, period, ylabel, title,
                  False, False, X_z)
 
