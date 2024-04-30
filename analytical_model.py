@@ -44,26 +44,26 @@ for single_case in data:
         final_reflectance.append(reflectance.real)
         # final_transmittance.append(1 - reflectance.real)
 
-    ylabel = "Reflectance"
-    title = "Reflectance - numerical model"
-    display_data(wavelengths, final_reflectance, delta_n_eff, n_eff, period, ylabel, title, False, False, X_z)
+    ylabel = "Reflektancja"
+    title = "Reflektancja - model analityczny"
+    display_data(wavelengths, final_reflectance, delta_n_eff, n_eff, period, ylabel, title, True, False, X_z)
 
     # ylabel = "Transmittance"
     # title = "Transmittance - numerical model"
     # display_data(wavelengths, final_reflectance, delta_n_eff, n_eff, period, ylabel, title, True, False, X_z)
 
-#     if max(final_reflectance) >= 0.1:
-#         model_data.append({
-#             "reflectance": final_reflectance,
-#             "delta_n_eff": delta_n_eff,
-#             "n_eff": n_eff,
-#             "period": period,
-#             "X_z": X_z
-#         })
-#
-# # TO SAVE CALCULATIONS AS JSON
-# with open(f"data_model_input.json", "w") as outfile:
-#     json.dump(model_data, outfile, indent=4)
+#    if max(final_reflectance) >= 0.1:
+    model_data.append({
+        "reflectance": final_reflectance,
+        "delta_n_eff": delta_n_eff,
+        "n_eff": n_eff,
+        "period": period,
+        "X_z": X_z
+    })
+
+# TO SAVE CALCULATIONS AS JSON
+with open(f"data_main_model_input.json", "w") as outfile:
+    json.dump(model_data, outfile, indent=4)
 
 
 # TO SAVE PLOTS AS ONE GIF

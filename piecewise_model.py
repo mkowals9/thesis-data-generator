@@ -3,7 +3,6 @@ import cmath
 import numpy as np
 from display_data import display_data
 
-
 with open('input_test.json', 'r') as file:
     data = json.load(file)
 
@@ -16,6 +15,8 @@ start_value = config["start_value"]  # początkowy zakres fal
 end_value = config["end_value"]  # końcowy zakres fal
 wavelengths = np.linspace(start_value, end_value, num_points)
 fringe = config["fringe"]
+
+model_data = []
 
 M = 200  # na ile sekcji dzielimy siatke
 r_0 = 1
@@ -37,7 +38,7 @@ for single_case in data:
     for wavelength in wavelengths:
         all_R_matrices_per_wavelength = []
         sigma = 2 * cmath.pi * n_eff * (1 / wavelength - 1 / bragg_wavelength) + (
-                    2 * cmath.pi / wavelength) * delta_n_eff
+                2 * cmath.pi / wavelength) * delta_n_eff
         kappa = (X_z * cmath.pi * fringe * delta_n_eff) / wavelength
         for index in range(1, M):
             gamma_B = cmath.sqrt(kappa ** 2 - sigma ** 2)
@@ -55,10 +56,21 @@ for single_case in data:
         final_reflectance.append(reflectance)
         final_transmittance.append(1 - reflectance)
 
-    ylabel = "Reflectance"
-    title = "Reflectance - piecewise model"
-    display_data(wavelengths, final_reflectance, delta_n_eff, n_eff, period, ylabel, title, False, False, X_z)
+    ylabel = "Reflektancja"
+    title = "Reflektancja - model macierzowy"
+    display_data(wavelengths, final_reflectance, delta_n_eff, n_eff, period, ylabel, title, True, False, X_z)
     #
     # ylabel = "Transmittance"
     # title = "Transmittance - piecewise model"
     # display_data(wavelengths, final_transmittance, delta_n_eff, n_eff, period, ylabel, title, False, False, X_z)
+    model_data.append({
+        "reflectance": final_reflectance,
+        "delta_n_eff": delta_n_eff,
+        "n_eff": n_eff,
+        "period": period,
+        "X_z": X_z
+    })
+
+# TO SAVE CALCULATIONS AS JSON
+with open(f"data_piecewise_model_input.json", "w") as outfile:
+    json.dump(model_data, outfile, indent=4)
