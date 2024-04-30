@@ -46,8 +46,8 @@ def display_data_from_both_models_on_one_plot(main_y, piecewise_y, delta_n_eff, 
     start_value = config["start_value"]  # początkowy zakres fal
     end_value = config["end_value"]  # końcowy zakres fal
     wavelengths = np.linspace(start_value, end_value, num_points)
-    plt.plot(wavelengths, main_y, label='Reflectance - analytical model')
-    plt.plot(wavelengths, piecewise_y, label='Reflectance - piecewise model')
+    plt.plot(wavelengths, main_y, label='Reflektancja - model analityczny')
+    plt.plot(wavelengths, piecewise_y, label='Reflektancja - model macierzowy')
     plt.xlabel("Długość fali [m]")
     plt.ylim(0, 0.5)
     plt.ylabel("Reflektancja")
