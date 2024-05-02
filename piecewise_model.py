@@ -10,7 +10,7 @@ from display_data import display_data, save_plots_to_one_gif, display_sections_d
 with open('model_config.json', 'r') as file:
     config = json.load(file)
 
-N = 100  # ile przykladow (wykresow) chcemy
+N = 250  # ile przykladow (wykresow) chcemy
 L = config["L"]  # tu w metrach
 num_points = config["num_points"]  # liczba dlugosci fal
 start_value = config["start_value"]  # początkowy zakres fal
@@ -51,6 +51,25 @@ def set_standard_params_per_section():
 
 
 def set_gauss_params_per_section():
+    random.seed(random.gauss())
+    temp_n_eff_all_sections = []
+    temp_delta_n_eff_all_sections = []
+    temp_X_z_all_sections = []
+    temp_period_all_sections = []
+    with open('./input_data_generated/new_input_40_gauss.json', 'r') as json_file:
+        data = json.load(json_file)
+    for section_index in range(0, M):
+        random.seed(section_index + M + random.random() + example_index)
+        single_case = random.choice(data)
+
+        temp_n_eff_all_sections.append(single_case["n_eff"])
+        temp_delta_n_eff_all_sections.append(single_case["delta_n_eff"])
+        temp_X_z_all_sections.append(single_case["X_z"])
+        temp_period_all_sections.append(single_case["grating_period"])
+    return temp_n_eff_all_sections, temp_delta_n_eff_all_sections, temp_X_z_all_sections, temp_period_all_sections
+
+
+def set_many_gauss_params_per_section():
     n_effs = np.load('./input_data_generated/gauss_600_n_eff.npy')
     delta_n_effs = np.load('./input_data_generated/gauss_600_delta_n_eff.npy')
     periods = np.load('./input_data_generated/gauss_600_period.npy')
@@ -73,6 +92,16 @@ def set_gauss_params_per_section():
 
 
 def set_parabolic_params_per_section():
+    # n_effs = np.load('./input_data_generated/2nd_3rd_degree_n_eff.npy')
+    # delta_n_effs = np.load('./input_data_generated/2nd_3rd_degree_delta_n_eff.npy')
+    # periods = np.load('./input_data_generated/2nd_3rd_degree_period.npy')
+    # Xzs = np.load('./input_data_generated/2nd_3rd_degree_X_z.npy')
+
+    # n_effs = np.load('./input_data_generated/parabolic_n_eff_without_scaling.npy')
+    # delta_n_effs = np.load('./input_data_generated/parabolic_delta_n_eff_without_scaling.npy')
+    # periods = np.load('./input_data_generated/parabolic_period_without_scaling.npy')
+    # Xzs = np.load('./input_data_generated/parabolic_X_z_without_scaling.npy')
+
     n_effs = np.load('./input_data_generated/parabolic_n_eff.npy')
     delta_n_effs = np.load('./input_data_generated/parabolic_delta_n_eff.npy')
     periods = np.load('./input_data_generated/parabolic_period.npy')
@@ -124,6 +153,32 @@ def set_2nd_and_3rd_params_per_section():
     return temp_n_eff_all_sections, temp_delta_n_eff_all_sections, temp_X_z_all_sections, temp_period_all_sections
 
 
+def set_positive_sin_params_per_section(i):
+    n_effs = np.load('./input_data_generated/sin_n_eff.npy')
+    delta_n_effs = np.load('./input_data_generated/sin_delta_n_eff.npy')
+    periods = np.load('./input_data_generated/sin_period.npy')
+    Xzs = np.load('./input_data_generated/sin_X_z.npy')
+    n = 20
+
+    random.seed(random.gauss() + i + M + n)
+    random_value_distr = random.randint(0, len(n_effs) - 1)
+    temp_n_eff_all_sections = n_effs[random_value_distr]
+
+    random.seed(random.gauss() + i + M + n)
+    random_value_distr = random.randint(0, len(delta_n_effs) - 1)
+    temp_delta_n_eff_all_sections = delta_n_effs[random_value_distr] * 1e-4
+
+    random.seed(random.gauss() + i + n)
+    random_value_distr = random.randint(0, len(Xzs) - 1)
+    temp_X_z_all_sections = Xzs[random_value_distr] * 0.1
+
+    random.seed(random.gauss() + i + n)
+    random_value_distr = random.randint(0, len(periods) - 1)
+    temp_period_all_sections = periods[random_value_distr] * 1e-7
+
+    return temp_n_eff_all_sections, temp_delta_n_eff_all_sections, temp_X_z_all_sections, temp_period_all_sections
+
+
 for example_index in range(N):
     ct = str(datetime.datetime.now().timestamp()).replace(".", "_")
     # indeks danego elementu = indeks sekcji
@@ -133,7 +188,7 @@ for example_index in range(N):
 
     # ustalamy parametry per sekcja
     n_eff_all_sections, delta_n_eff_all_sections, X_z_all_sections, period_all_sections = (
-        set_standard_params_per_section())
+        set_positive_sin_params_per_section(2))
 
     final_reflectance = []
     final_transmittance = []
@@ -144,9 +199,9 @@ for example_index in range(N):
         all_R_matrices_per_wavelength = []
         for param_index in range(0, M - 1):
             n_eff = n_eff_all_sections[param_index]
-            delta_n_eff = delta_n_eff_all_sections[param_index] * 1e-4
-            X_z = X_z_all_sections[param_index] * 0.1
-            grating_period = period_all_sections[param_index] * 1e-7
+            delta_n_eff = delta_n_eff_all_sections[param_index]
+            X_z = X_z_all_sections[param_index]
+            grating_period = period_all_sections[param_index]
             bragg_wavelength = 2 * n_eff * grating_period
 
             sigma = 2 * cmath.pi * n_eff * (1 / wavelength - 1 / bragg_wavelength) + (
@@ -167,21 +222,22 @@ for example_index in range(N):
             multiplied_R_matrices = np.matmul(all_R_matrices_per_wavelength[matrix_index], multiplied_R_matrices)
         final_output_R = np.array(multiplied_R_matrices) * R_0
         reflectance = np.abs(final_output_R[1, 0] / final_output_R[0, 0]) ** 2
-        reflectance = reflectance if reflectance >= 0.0001 else 0
+        reflectance = reflectance if reflectance >= 0.001 else 0
         final_reflectance.append(reflectance)
         # final_transmittance.append(1 - reflectance)
 
-    ylabel = "Reflektancja"
-    title = "Reflektancja - model macierzowy"
-    display_data(wavelengths, final_reflectance, ylabel, title, ct, False, False)
-    # display_sections_data(np.linspace(0, M-1, M), X_z_all_sections,
-    #                       "X_z", "X(z) dla kolejnych sekcji", ct, False)
-    # display_sections_data(np.linspace(0, M-1, M), period_all_sections,
-    #                       "okres siatki", "Okresy siatki dla kolejnych sekcji", ct, False)
-    # display_sections_data(np.linspace(0, M-1, M), delta_n_eff_all_sections,
-    #                       "delta_n_eff", "Delta_n_eff dla kolejnych sekcji", ct, False)
-    # display_sections_data(np.linspace(0, M-1, M), n_eff_all_sections,
-    #                       "n_eff", "n_eff dla kolejnych sekcji", ct, False)
+    if max(final_reflectance) > 0:
+        ylabel = "Reflektancja"
+        title = "Reflektancja - model macierzowy"
+        display_data(wavelengths, final_reflectance, ylabel, title, ct, True, False)
+        # display_sections_data(np.linspace(0, M - 1, M), X_z_all_sections,
+        #                       "X_z", "X(z) dla kolejnych sekcji", ct, True)
+        # display_sections_data(np.linspace(0, M - 1, M), period_all_sections,
+        #                       "okres siatki", "Okresy siatki dla kolejnych sekcji", ct, True)
+        # display_sections_data(np.linspace(0, M - 1, M), delta_n_eff_all_sections,
+        #                       "delta_n_eff", "Delta_n_eff dla kolejnych sekcji", ct, True)
+        # display_sections_data(np.linspace(0, M - 1, M), n_eff_all_sections,
+        #                       "n_eff", "n_eff dla kolejnych sekcji", ct, True)
     # all_examples.append({
     #         "wavelengths": wavelengths.tolist(),
     #         "reflectance": final_reflectance,
@@ -219,8 +275,8 @@ for example_index in range(N):
 # title = "Transmittance - piecewise model"
 # display_data(wavelengths, final_transmittance, delta_n_eff, n_eff, period, ylabel, title)
 
-# print("Creating gif")
-# directory = './plots/'
-# filenames = os.listdir(directory)
-#
-# save_plots_to_one_gif(filenames)
+print("Creating gif")
+directory = './plots/'
+filenames = os.listdir(directory)
+
+save_plots_to_one_gif(filenames)

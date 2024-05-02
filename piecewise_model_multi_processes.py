@@ -6,11 +6,12 @@ from multiprocessing import Process
 import numpy as np
 
 import input_data_generator
+from display_data import display_data, display_sections_data
 
 with open('model_config.json', 'r') as file:
     config = json.load(file)
 
-N = 150000  # ile przykladow (wykresow) chcemy
+N = 80000  # ile przykladow (wykresow) chcemy
 L = config["L"]  # tu w metrach
 num_points = config["num_points"]  # liczba dlugosci fal
 start_value = config["start_value"]  # początkowy zakres fal
@@ -89,20 +90,24 @@ def basic_calculate(i):
                 multiplied_R_matrices = np.matmul(all_R_matrices_per_wavelength[matrix_index], multiplied_R_matrices)
             final_output_R = np.array(multiplied_R_matrices) * R_0
             reflectance = np.abs(final_output_R[1, 0] / final_output_R[0, 0]) ** 2
-            final_reflectance.append(reflectance)
+            final_reflectance.append([wavelength, reflectance])
             # final_transmittance.append(1 - reflectance)
 
-        # ylabel = "Reflectance"
-        # title = "Reflectance - piecewise model"
-        # display_data(wavelengths, final_reflectance, ylabel, title, ct, False, False)
-        # display_sections_data(np.linspace(0, 50, 50), X_z_all_sections,
-        #                       "X_z", "X(z) per section", ct, False)
-        # display_sections_data(np.linspace(0, 50, 50), period_all_sections,
-        #                       "grating period", "grating period per section", ct,False)
-        # display_sections_data(np.linspace(0, 50, 50), delta_n_eff_all_sections,
-        #                       "delta_n_eff", "delta_n_eff per section", ct,False)
-        # display_sections_data(np.linspace(0, 50, 50), n_eff_all_sections,
-        #                       "n_eff", "n_eff per section", ct, False)
+        if max([sublist[1] for sublist in final_reflectance]) > 0.1:
+            ylabel = "Reflektancja"
+            title = "Reflektancja - model macierzowy"
+            ct_prem = str(datetime.datetime.now().timestamp()).replace(".", "_")
+            display_data([el[0] for el in final_reflectance], [el[1] for el in final_reflectance],
+                         ylabel, title, ct_prem, True, False)
+            display_sections_data(np.linspace(0, M - 1, M), X_z_all_sections,
+                                  "X_z", "X(z) dla kolejnych sekcji", ct_prem, True)
+            display_sections_data(np.linspace(0, M - 1, M), period_all_sections,
+                                  "okres siatki", "Okresy siatki dla kolejnych sekcji", ct_prem, True)
+            display_sections_data(np.linspace(0, M - 1, M), delta_n_eff_all_sections,
+                                  "delta_n_eff", "Delta_n_eff dla kolejnych sekcji", ct_prem, True)
+            display_sections_data(np.linspace(0, M - 1, M), n_eff_all_sections,
+                                  "n_eff", "n_eff dla kolejnych sekcji", ct_prem, True)
+
         # all_examples.append({
         #         "wavelengths": wavelengths.tolist(),
         #         "reflectance": final_reflectance,
@@ -111,15 +116,16 @@ def basic_calculate(i):
         #         "period": period_all_sections,
         #         "X_z": X_z_all_sections
         #     })
-        all_examples_wavelengths.append(wavelengths)
-        all_examples_reflectances.append(final_reflectance)
-        all_examples_delta_n_eff.append(delta_n_eff_all_sections)
-        all_examples_period.append(period_all_sections)
-        all_examples_n_eff.append(n_eff_all_sections)
-        all_examples_X_z.append(X_z_all_sections)
-        # print(f"Done example {example_index}")
-        if example_index % 1000 == 0:
-            print(f"Done example {example_index} on chunk {i}")
+
+        # all_examples_wavelengths.append(wavelengths)
+        # all_examples_reflectances.append(final_reflectance)
+        # all_examples_delta_n_eff.append(delta_n_eff_all_sections)
+        # all_examples_period.append(period_all_sections)
+        # all_examples_n_eff.append(n_eff_all_sections)
+        # all_examples_X_z.append(X_z_all_sections)
+        # # print(f"Done example {example_index}")
+        # if example_index % 1000 == 0:
+        #     print(f"Done example {example_index} on chunk {i}")
 
     # with open(f"model_input_wavelengths_{example_index}.json", "w") as outfile:
     #     json.dump(all_examples, outfile, indent=4)
@@ -266,12 +272,13 @@ def polynomial_calculate(i):
             for param_index in range(0, M - 1):
                 n_eff = n_eff_all_sections[param_index]
                 delta_n_eff = delta_n_eff_all_sections[param_index] * 1e-4
-                X_z = X_z_all_sections[param_index] * 0.1
+                X_z = X_z_all_sections[param_index] * 1e-2
                 grating_period = period_all_sections[param_index] * 1e-7
                 bragg_wavelength = 2 * n_eff * grating_period
 
                 sigma = 2 * cmath.pi * n_eff * (1 / wavelength - 1 / bragg_wavelength) + (
                         2 * cmath.pi / wavelength) * delta_n_eff
+                # sigma = (X_z * 2 * cmath.pi * delta_n_eff) / wavelength
                 kappa = (X_z * cmath.pi * fringe * delta_n_eff) / wavelength
                 gamma_B = cmath.sqrt(kappa ** 2 - sigma ** 2)
 
@@ -292,21 +299,35 @@ def polynomial_calculate(i):
             final_reflectance.append(np.array([wavelength, reflectance]))
 
         # all_examples_wavelengths.append(wavelengths)
-        if max([sublist[1] for sublist in final_reflectance]) > 0:
-            all_examples_reflectances.append(final_reflectance)
-            all_examples_delta_n_eff.append(delta_n_eff_all_sections)
-            all_examples_period.append(period_all_sections)
-            all_examples_n_eff.append(n_eff_all_sections)
-            all_examples_X_z.append(X_z_all_sections)
-            if example_index % 1000 == 0:
-                print(f"Done example {example_index} on chunk {i}")
+        if max([sublist[1] for sublist in final_reflectance]) > 0.1:
+            # all_examples_reflectances.append(final_reflectance)
+            # all_examples_delta_n_eff.append(delta_n_eff_all_sections)
+            # all_examples_period.append(period_all_sections)
+            # all_examples_n_eff.append(n_eff_all_sections)
+            # all_examples_X_z.append(X_z_all_sections)
+            # if example_index % 1000 == 0:
+            #     print(f"Done example {example_index} on chunk {i}")
+            ylabel = "Reflektancja"
+            title = "Reflektancja - model macierzowy"
+            display_data([el[0] for el in final_reflectance], [el[1] for el in final_reflectance],
+                         ylabel, title, ct_prem + str(i), True, False)
+            display_sections_data(np.linspace(0, M - 1, M), X_z_all_sections,
+                                  "X_z", "X(z) dla kolejnych sekcji", "X_Z" + ct_prem + str(i), True)
+            display_sections_data(np.linspace(0, M - 1, M), period_all_sections,
+                                  "okres siatki", "Okresy siatki dla kolejnych sekcji", "okres" + ct_prem + str(i),
+                                  True)
+            display_sections_data(np.linspace(0, M - 1, M), delta_n_eff_all_sections,
+                                  "delta_n_eff", "Delta_n_eff dla kolejnych sekcji", "delta_n_e" + ct_prem + str(i),
+                                  True)
+            display_sections_data(np.linspace(0, M - 1, M), n_eff_all_sections,
+                                  "n_eff", "n_eff dla kolejnych sekcji", "n_eff" + ct_prem + str(i), True)
 
     # np.save(f"./results/parabol/model_input_wavelengths_chunk_2603{i}.npy", np.array(all_examples_wavelengths))
-    np.save(f"./results/polynomial/model_input_reflectances_chunk_704{i}.npy", np.array(all_examples_reflectances))
-    np.save(f"./results/polynomial/model_input_delta_n_eff_chunk_704{i}.npy", np.array(all_examples_delta_n_eff))
-    np.save(f"./results/polynomial/model_input_period_chunk_704{i}.npy", np.array(all_examples_period))
-    np.save(f"./results/polynomial/model_input_n_eff_chunk_704{i}.npy", np.array(all_examples_n_eff))
-    np.save(f"./results/polynomial/model_input_X_z_chunk_704{i}.npy", np.array(all_examples_X_z))
+    # np.save(f"./results/polynomial/model_input_reflectances_chunk_704{i}.npy", np.array(all_examples_reflectances))
+    # np.save(f"./results/polynomial/model_input_delta_n_eff_chunk_704{i}.npy", np.array(all_examples_delta_n_eff))
+    # np.save(f"./results/polynomial/model_input_period_chunk_704{i}.npy", np.array(all_examples_period))
+    # np.save(f"./results/polynomial/model_input_n_eff_chunk_704{i}.npy", np.array(all_examples_n_eff))
+    # np.save(f"./results/polynomial/model_input_X_z_chunk_704{i}.npy", np.array(all_examples_X_z))
 
 
 # do pliku zapisujemmy tylko współczynniki rownan 3 stopnia i reflektancje (x,y), nie n_eff, delta_n_eff, X_z, periods
@@ -379,7 +400,7 @@ def coefficients_calculate(i):
             for param_index in range(0, M - 1):
                 n_eff = n_eff_all_sections[param_index]
                 delta_n_eff = delta_n_eff_all_sections[param_index] * 1e-4
-                X_z = X_z_all_sections[param_index] * 0.1
+                X_z = X_z_all_sections[param_index] * 1e-2
                 grating_period = period_all_sections[param_index] * 1e-7
                 bragg_wavelength = 2 * n_eff * grating_period
 
@@ -414,11 +435,134 @@ def coefficients_calculate(i):
     np.save(f"./results/coefficients/model_input_coefficients_chunk_404{i}.npy", np.array(all_examples_coefficients))
 
 
+def positive_sin_calculate(i):
+    all_examples_reflectances = []
+    all_examples_delta_n_eff = []
+    all_examples_n_eff = []
+    all_examples_period = []
+    all_examples_X_z = []
+    for example_index in range(N):
+        ct = str(datetime.datetime.now().timestamp()).replace(".", "_")
+        # indeks danego elementu = indeks sekcji
+
+        R_0 = 1  # R - the forward propagating wave
+        S_0 = 0  # S - the backward propagating wave
+
+        # ustalamy parametry per sekcja
+        n_effs = np.load('./input_data_generated/sin_n_eff.npy')
+        delta_n_effs = np.load('./input_data_generated/sin_delta_n_eff.npy')
+        periods = np.load('./input_data_generated/sin_period.npy')
+        Xzs = np.load('./input_data_generated/sin_X_z.npy')
+        n = 20
+
+        random.seed(random.gauss() + i + M + n)
+        random_value_distr = random.randint(0, len(n_effs) - 1)
+        n_eff_all_sections = n_effs[random_value_distr]
+
+        random.seed(random.gauss() + i + M + n)
+        random_value_distr = random.randint(0, len(delta_n_effs) - 1)
+        delta_n_eff_all_sections = delta_n_effs[random_value_distr]
+
+        random.seed(random.gauss() + i + n)
+        random_value_distr = random.randint(0, len(Xzs) - 1)
+        X_z_all_sections = Xzs[random_value_distr]
+
+        random.seed(random.gauss() + i + n)
+        random_value_distr = random.randint(0, len(periods) - 1)
+        period_all_sections = periods[random_value_distr]
+
+        final_reflectance = []
+        final_transmittance = []
+
+        # reflektancja per długość fali
+        for wavelength in wavelengths:
+
+            all_R_matrices_per_wavelength = []
+            for param_index in range(0, M):
+                n_eff = n_eff_all_sections[param_index]
+                delta_n_eff = delta_n_eff_all_sections[param_index] * 1e-4
+                X_z = X_z_all_sections[param_index] * 1e-1
+                grating_period = period_all_sections[param_index] * 1e-7
+                if not (1e-5 <= delta_n_eff <= 1e-4):
+                    print("Bad scaling delta_n_eff: ", delta_n_eff)
+                if not (535e-9 <= grating_period <= 540e-9):
+                    print("Bad scaling period: ", grating_period)
+                if not (0.01 <= X_z <= 0.99):
+                    print(f"Bad scaling X_z: {X_z}")
+
+                bragg_wavelength = 2 * n_eff * grating_period
+
+                sigma = 2 * cmath.pi * n_eff * (1 / wavelength - 1 / bragg_wavelength) + (
+                        2 * cmath.pi / wavelength) * delta_n_eff
+                kappa = (X_z * cmath.pi * fringe * delta_n_eff) / wavelength
+                gamma_B = cmath.sqrt(kappa ** 2 - sigma ** 2)
+
+                left_top = cmath.cosh(gamma_B * delta_z) - 1j * (sigma / gamma_B) * cmath.sinh(gamma_B * delta_z)
+                left_down = 1j * (kappa / gamma_B) * cmath.sinh(gamma_B * delta_z)
+                right_top = -1j * (kappa / gamma_B) * cmath.sinh(gamma_B * delta_z)
+                right_down = cmath.cosh(gamma_B * delta_z) + 1j * (sigma / gamma_B) * cmath.sinh(gamma_B * delta_z)
+
+                matrix_f_i = np.array([[left_top, right_top], [left_down, right_down]])
+                all_R_matrices_per_wavelength.append(matrix_f_i)
+
+            multiplied_R_matrices = all_R_matrices_per_wavelength[0]
+            for matrix_index in range(1, len(all_R_matrices_per_wavelength)):
+                multiplied_R_matrices = np.matmul(all_R_matrices_per_wavelength[matrix_index], multiplied_R_matrices)
+            final_output_R = np.array(multiplied_R_matrices) * R_0
+            reflectance = np.abs(final_output_R[1, 0] / final_output_R[0, 0]) ** 2
+            final_reflectance.append([wavelength, reflectance])
+            # final_transmittance.append(1 - reflectance)
+
+        max_value = max([sublist[1] for sublist in final_reflectance])
+        if max_value > 0.01:
+            # all_examples_wavelengths.append(wavelengths)
+            all_examples_reflectances.append(final_reflectance)
+            all_examples_delta_n_eff.append(delta_n_eff_all_sections)
+            all_examples_period.append(period_all_sections)
+            all_examples_n_eff.append(n_eff_all_sections)
+            all_examples_X_z.append(X_z_all_sections)
+
+        # if max_value > 0.1:
+        #     ylabel = "Reflektancja"
+        #     title = "Reflektancja - model macierzowy"
+        #     ct_prem = str(datetime.datetime.now().timestamp()).replace(".", "_")
+        #     display_data([el[0] for el in final_reflectance], [el[1] for el in final_reflectance],
+        #                  ylabel, title, ct_prem, True, False)
+        #     display_sections_data(np.linspace(0, M - 1, M), X_z_all_sections,
+        #                           "X_z", "X(z) dla kolejnych sekcji", ct_prem, True)
+        #     display_sections_data(np.linspace(0, M - 1, M), period_all_sections,
+        #                           "okres siatki", "Okresy siatki dla kolejnych sekcji", ct_prem, True)
+        #     display_sections_data(np.linspace(0, M - 1, M), delta_n_eff_all_sections,
+        #                           "delta_n_eff", "Delta_n_eff dla kolejnych sekcji", ct_prem, True)
+        #     display_sections_data(np.linspace(0, M - 1, M), n_eff_all_sections,
+        #                           "n_eff", "n_eff dla kolejnych sekcji", ct_prem, True)
+
+        # all_examples.append({
+        #         "wavelengths": wavelengths.tolist(),
+        #         "reflectance": final_reflectance,
+        #         "delta_n_eff": delta_n_eff_all_sections,
+        #         "n_eff": n_eff_all_sections,
+        #         "period": period_all_sections,
+        #         "X_z": X_z_all_sections
+        #     })
+
+        # print(f"Done example {example_index}")
+        if example_index % 1000 == 0:
+            print(f"Done example {example_index} on chunk {i}")
+
+    # np.save(f"./results/model_input_wavelengths_chunk_15{i}.npy", np.array(all_examples_wavelengths))
+    np.save(f"./results/sinusoid/model_input_reflectances_chunk_15{i}.npy", np.array(all_examples_reflectances))
+    np.save(f"./results/sinusoid/model_input_delta_n_eff_chunk_15{i}.npy", np.array(all_examples_delta_n_eff))
+    np.save(f"./results/sinusoid/model_input_period_chunk_15{i}.npy", np.array(all_examples_period))
+    np.save(f"./results/sinusoid/model_input_n_eff_chunk_15{i}.npy", np.array(all_examples_n_eff))
+    np.save(f"./results/sinusoid/model_input_X_z_chunk_15{i}.npy", np.array(all_examples_X_z))
+
+
 if __name__ == '__main__':
     n_threads = 16
     threads = []
     for i in range(n_threads):
-        t = Process(target=polynomial_calculate, args=(i,))
+        t = Process(target=positive_sin_calculate, args=(i,))
         t.start()
         threads.append(t)
 

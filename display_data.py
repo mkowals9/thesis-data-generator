@@ -14,7 +14,7 @@ def display_sections_data(xs, y_axis, ylabel, title, ct, want_save):
     plt.title(title)
     plt.grid(True)
     if want_save:
-        plt.savefig(f'./plots/section_example_{ct}.png')
+        plt.savefig(f'./plots/section_example_{ylabel}_{ct}.png')
         plt.clf()
     else:
         plt.show()
@@ -30,7 +30,7 @@ def display_data(wavelengths, y_axis, ylabel, title, ct, want_save, log_scale):
         plt.yscale('log')
         plt.ylim(1e-20, 1e0)
     else:
-        plt.ylim(0, 1)
+        plt.ylim(0, 0.3)
     plt.grid(True)
     if want_save:
         plt.savefig(f'./plots/plot_example_{ct}.png')
