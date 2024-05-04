@@ -11,13 +11,18 @@ from display_data import display_data, display_sections_data
 with open('model_config.json', 'r') as file:
     config = json.load(file)
 
-N = 80000  # ile przykladow (wykresow) chcemy
+N = 95000  # ile przykladow (wykresow) chcemy
 L = config["L"]  # tu w metrach
 num_points = config["num_points"]  # liczba dlugosci fal
 start_value = config["start_value"]  # początkowy zakres fal
 end_value = config["end_value"]  # końcowy zakres fal
 wavelengths = np.linspace(start_value, end_value, num_points)  # dlugosci fal
 fringe = config["fringe"]
+
+n_effs = np.load('./input_data_generated/sin_n_eff_new_shifts.npy')
+delta_n_effs = np.load('./input_data_generated/sin_delta_n_eff_new_shifts.npy')
+periods = np.load('./input_data_generated/sin_period_new_shifts.npy')
+Xzs = np.load('./input_data_generated/sin_X_z_new_shifts.npy')
 
 M = 15  # na ile sekcji dzielimy siatke
 # condition_for_M = M < (2 * n_eff * L) // bragg_wavelength
@@ -442,37 +447,34 @@ def positive_sin_calculate(i):
     all_examples_period = []
     all_examples_X_z = []
     for example_index in range(N):
-        ct = str(datetime.datetime.now().timestamp()).replace(".", "_")
+        # ct = str(datetime.datetime.now().timestamp()).replace(".", "_")
         # indeks danego elementu = indeks sekcji
 
         R_0 = 1  # R - the forward propagating wave
-        S_0 = 0  # S - the backward propagating wave
+        # S_0 = 0  # S - the backward propagating wave
 
         # ustalamy parametry per sekcja
-        n_effs = np.load('./input_data_generated/sin_n_eff.npy')
-        delta_n_effs = np.load('./input_data_generated/sin_delta_n_eff.npy')
-        periods = np.load('./input_data_generated/sin_period.npy')
-        Xzs = np.load('./input_data_generated/sin_X_z.npy')
-        n = 20
+
+        n = 40
 
         random.seed(random.gauss() + i + M + n)
         random_value_distr = random.randint(0, len(n_effs) - 1)
         n_eff_all_sections = n_effs[random_value_distr]
 
-        random.seed(random.gauss() + i + M + n)
+        random.seed(random.gauss() + i + M - n)
         random_value_distr = random.randint(0, len(delta_n_effs) - 1)
         delta_n_eff_all_sections = delta_n_effs[random_value_distr]
 
-        random.seed(random.gauss() + i + n)
+        random.seed(random.gauss() + i + M)
         random_value_distr = random.randint(0, len(Xzs) - 1)
         X_z_all_sections = Xzs[random_value_distr]
 
-        random.seed(random.gauss() + i + n)
+        random.seed(random.gauss() + i - M)
         random_value_distr = random.randint(0, len(periods) - 1)
         period_all_sections = periods[random_value_distr]
 
         final_reflectance = []
-        final_transmittance = []
+        # final_transmittance = []
 
         # reflektancja per długość fali
         for wavelength in wavelengths:
@@ -483,12 +485,12 @@ def positive_sin_calculate(i):
                 delta_n_eff = delta_n_eff_all_sections[param_index] * 1e-4
                 X_z = X_z_all_sections[param_index] * 1e-1
                 grating_period = period_all_sections[param_index] * 1e-7
-                if not (1e-5 <= delta_n_eff <= 1e-4):
-                    print("Bad scaling delta_n_eff: ", delta_n_eff)
-                if not (535e-9 <= grating_period <= 540e-9):
-                    print("Bad scaling period: ", grating_period)
-                if not (0.01 <= X_z <= 0.99):
-                    print(f"Bad scaling X_z: {X_z}")
+                # if not (1e-5 <= delta_n_eff <= 1e-4):
+                #     print("Bad scaling delta_n_eff: ", delta_n_eff)
+                # if not (535e-9 <= grating_period <= 540e-9):
+                #     print("Bad scaling period: ", grating_period)
+                # if not (0.01 <= X_z <= 0.99):
+                #     print(f"Bad scaling X_z: {X_z}")
 
                 bragg_wavelength = 2 * n_eff * grating_period
 
@@ -551,15 +553,15 @@ def positive_sin_calculate(i):
             print(f"Done example {example_index} on chunk {i}")
 
     # np.save(f"./results/model_input_wavelengths_chunk_15{i}.npy", np.array(all_examples_wavelengths))
-    np.save(f"./results/sinusoid/model_input_reflectances_chunk_15{i}.npy", np.array(all_examples_reflectances))
-    np.save(f"./results/sinusoid/model_input_delta_n_eff_chunk_15{i}.npy", np.array(all_examples_delta_n_eff))
-    np.save(f"./results/sinusoid/model_input_period_chunk_15{i}.npy", np.array(all_examples_period))
-    np.save(f"./results/sinusoid/model_input_n_eff_chunk_15{i}.npy", np.array(all_examples_n_eff))
-    np.save(f"./results/sinusoid/model_input_X_z_chunk_15{i}.npy", np.array(all_examples_X_z))
+    np.save(f"./results/sinusoid/model_input_reflectances_chunk_35{i}.npy", np.array(all_examples_reflectances))
+    np.save(f"./results/sinusoid/model_input_delta_n_eff_chunk_35{i}.npy", np.array(all_examples_delta_n_eff))
+    np.save(f"./results/sinusoid/model_input_period_chunk_35{i}.npy", np.array(all_examples_period))
+    np.save(f"./results/sinusoid/model_input_n_eff_chunk_35{i}.npy", np.array(all_examples_n_eff))
+    np.save(f"./results/sinusoid/model_input_X_z_chunk_35{i}.npy", np.array(all_examples_X_z))
 
 
 if __name__ == '__main__':
-    n_threads = 16
+    n_threads = 15
     threads = []
     for i in range(n_threads):
         t = Process(target=positive_sin_calculate, args=(i,))

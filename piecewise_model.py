@@ -154,10 +154,10 @@ def set_2nd_and_3rd_params_per_section():
 
 
 def set_positive_sin_params_per_section(i):
-    n_effs = np.load('./input_data_generated/sin_n_eff.npy')
-    delta_n_effs = np.load('./input_data_generated/sin_delta_n_eff.npy')
-    periods = np.load('./input_data_generated/sin_period.npy')
-    Xzs = np.load('./input_data_generated/sin_X_z.npy')
+    n_effs = np.load('./input_data_generated/sin_n_eff_new_shifts.npy')
+    delta_n_effs = np.load('./input_data_generated/sin_delta_n_eff_new_shifts.npy')
+    periods = np.load('./input_data_generated/sin_period_new_shifts.npy')
+    Xzs = np.load('./input_data_generated/sin_X_z_new_shifts.npy')
     n = 20
 
     random.seed(random.gauss() + i + M + n)
@@ -229,15 +229,15 @@ for example_index in range(N):
     if max(final_reflectance) > 0:
         ylabel = "Reflektancja"
         title = "Reflektancja - model macierzowy"
-        display_data(wavelengths, final_reflectance, ylabel, title, ct, True, False)
-        # display_sections_data(np.linspace(0, M - 1, M), X_z_all_sections,
-        #                       "X_z", "X(z) dla kolejnych sekcji", ct, True)
-        # display_sections_data(np.linspace(0, M - 1, M), period_all_sections,
-        #                       "okres siatki", "Okresy siatki dla kolejnych sekcji", ct, True)
-        # display_sections_data(np.linspace(0, M - 1, M), delta_n_eff_all_sections,
-        #                       "delta_n_eff", "Delta_n_eff dla kolejnych sekcji", ct, True)
-        # display_sections_data(np.linspace(0, M - 1, M), n_eff_all_sections,
-        #                       "n_eff", "n_eff dla kolejnych sekcji", ct, True)
+        display_data(wavelengths, final_reflectance, ylabel, title, ct, False, False)
+        display_sections_data(np.linspace(0, M - 1, M), X_z_all_sections,
+                               "X_z", "X(z) dla kolejnych sekcji", ct, False)
+        display_sections_data(np.linspace(0, M - 1, M), period_all_sections,
+                               "okres siatki", "Okresy siatki dla kolejnych sekcji", ct, False)
+        display_sections_data(np.linspace(0, M - 1, M), delta_n_eff_all_sections,
+                               "delta_n_eff", "Delta_n_eff dla kolejnych sekcji", ct, False)
+        display_sections_data(np.linspace(0, M - 1, M), n_eff_all_sections,
+                               "n_eff", "n_eff dla kolejnych sekcji", ct, False)
     # all_examples.append({
     #         "wavelengths": wavelengths.tolist(),
     #         "reflectance": final_reflectance,

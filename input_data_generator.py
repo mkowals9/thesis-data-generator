@@ -374,54 +374,65 @@ def generate_positive_only_sinusoid_distributions():
     periods = []
     delta_n_effs = []
 
-    frequencies = np.linspace(0.5, 8, 100)
+    frequencies = np.linspace(0.5, 8, 150)
     x = np.linspace(-L / 2, L / 2, 15)
 
-    amplitudes = np.linspace(0.001, 0.005, 10)
-    n_eff_y_shift = 1.44
-    cartesian_product_sin = itertools.product(amplitudes, frequencies)
-    for index, combination in enumerate(cartesian_product_sin):
-        amplitude, frequency = combination
-        sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + n_eff_y_shift
-        if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 1.45 and min(sine_wave) >= 1.44:
-            n_effs.append(sine_wave)
+    n_eff_shifts = [1.44, 1.441, 1.442, 1.443, 1.444, 1.445]
+    for n_eff_shift in n_eff_shifts:
+        stop_val = 1.45 - n_eff_shift
+        amplitudes = np.linspace(0.001, stop_val, 10)
+        cartesian_product_sin = itertools.product(amplitudes, frequencies)
+        for index, combination in enumerate(cartesian_product_sin):
+            amplitude, frequency = combination
+            sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + n_eff_shift
+            if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 1.45 and min(sine_wave) >= 1.44:
+                n_effs.append(sine_wave)
+                # plot_normalized(x, sine_wave)
+
+    period_shifts = [5.350, 5.355, 5.360, 5.365, 5.370]
+    for period_y_shift in period_shifts:
+        stop_val = 5.40 - period_y_shift
+        amplitudes = np.linspace(0.01, stop_val, 30)
+        # period_y_shift = 5.350
+        cartesian_product_sin = itertools.product(amplitudes, frequencies)
+        for index, combination in enumerate(cartesian_product_sin):
+            amplitude, frequency = combination
+            sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + period_y_shift
+            if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 5.400 and min(sine_wave) >= 5.350:
+                periods.append(sine_wave)
+                # plot_normalized(x, sine_wave)
+
+    delta_n_eff_shifts = [0.1, 0.2, 0.3, 0.4, 0.5]
+    for delta_n_eff_y_shift in delta_n_eff_shifts:
+        stop_val = 1 - delta_n_eff_y_shift
+        amplitudes = np.linspace(0.01, stop_val, 150)
+        # delta_n_eff_y_shift = 0.1
+        cartesian_product_sin = itertools.product(amplitudes, frequencies)
+        for index, combination in enumerate(cartesian_product_sin):
+            amplitude, frequency = combination
+            sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + delta_n_eff_y_shift
+            if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 1 and min(sine_wave) >= 0.1:
+                delta_n_effs.append(sine_wave)
         # plot_normalized(x, sine_wave)
 
-    amplitudes = np.linspace(0.01, 0.05, 30)
-    period_y_shift = 5.350
-    cartesian_product_sin = itertools.product(amplitudes, frequencies)
-    for index, combination in enumerate(cartesian_product_sin):
-        amplitude, frequency = combination
-        sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + period_y_shift
-        if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 5.400 and min(sine_wave) >= 5.350:
-            periods.append(sine_wave)
-        # plot_normalized(x, sine_wave)
-
-    amplitudes = np.linspace(0.01, 0.9, 150)
-    delta_n_eff_y_shift = 0.1
-    cartesian_product_sin = itertools.product(amplitudes, frequencies)
-    for index, combination in enumerate(cartesian_product_sin):
-        amplitude, frequency = combination
-        sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + delta_n_eff_y_shift
-        if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 1 and min(sine_wave) >= 0.1:
-            delta_n_effs.append(sine_wave)
-        # plot_normalized(x, sine_wave)
-
-    amplitudes = np.linspace(0.5, 9.8, 150)
-    X_z_shift = 0.1
-    cartesian_product_sin = itertools.product(amplitudes, frequencies)
-    for index, combination in enumerate(cartesian_product_sin):
-        amplitude, frequency = combination
-        sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + X_z_shift
-        if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 9.9 and min(sine_wave) >= 0.1:
-            X_zs.append(sine_wave)
+    X_z_shifts = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    for X_z_shift in X_z_shifts:
+        stop_val = 9.9 - X_z_shift
+        amplitudes = np.linspace(0.5, stop_val, 150)
+        # X_z_shift = 0.1
+        cartesian_product_sin = itertools.product(amplitudes, frequencies)
+        for index, combination in enumerate(cartesian_product_sin):
+            amplitude, frequency = combination
+            sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + X_z_shift
+            if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 9.9 and min(sine_wave) >= 0.1:
+                X_zs.append(sine_wave)
         # plot_normalized(x, sine_wave)
 
     print("Saving to file")
-    np.save("./input_data_generated/sin_n_eff.npy", np.asarray(n_effs))
-    np.save("./input_data_generated/sin_period.npy", np.asarray(periods))
-    np.save("./input_data_generated/sin_delta_n_eff.npy", np.asarray(delta_n_effs))
-    np.save("./input_data_generated/sin_X_z.npy", np.asarray(X_zs))
+    np.save("./input_data_generated/sin_n_eff_new_shifts.npy", np.asarray(n_effs))
+    np.save("./input_data_generated/sin_period_new_shifts.npy", np.asarray(periods))
+    np.save("./input_data_generated/sin_delta_n_eff_new_shifts.npy", np.asarray(delta_n_effs))
+    np.save("./input_data_generated/sin_X_z_new_shifts.npy", np.asarray(X_zs))
 
 
 if __name__ == '__main__':
