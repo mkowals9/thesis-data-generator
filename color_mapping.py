@@ -111,15 +111,34 @@ with open('model_config.json', 'r') as file:
 
 L = config["L"]
 xs = np.linspace(-L/2, L/2, len(estimated_temperatures))
-coefficients = np.polyfit(xs, estimated_temperatures, 4)
-print("Coefficients: ", coefficients)
-# >>> numpy.polyfit(x, y, 2) # The 2 signifies a polynomial of degree 2
-# array([  -1.04978546,  115.16698544,  236.16191491])
 
-values = np.polyval(coefficients, xs)
-plt.plot(xs, values, marker='o', linestyle='-')
-plt.xlabel('X values')
-plt.ylabel('Normalized values')
-plt.title('Normalized Values Plot')
+# normalizacja do wartości maksymalnej, żeby te współczynniki nie były za duże
+# coefficients = np.polyfit(xs, estimated_temperatures, 9)
+# print("Coefficients: ", coefficients)
+# # >>> numpy.polyfit(x, y, 2) # The 2 signifies a polynomial of degree 2
+# # array([  -1.04978546,  115.16698544,  236.16191491])
+#
+# values = np.polyval(coefficients, xs)
+# plt.plot(xs, values, marker='o', linestyle='-')
+# plt.xlabel('X values')
+# plt.ylabel('X values')
+# plt.title(' Values Plot')
+# plt.grid(True)
+# plt.show()
+
+N_values = [3, 4, 5, 6, 8, 11]
+plt.figure(figsize=(10, 6))
+
+for N in N_values:
+    coefficients = np.polyfit(xs, estimated_temperatures, N)
+    print(f"Coefficients for N={N}: ", coefficients)
+
+    values = np.polyval(coefficients, xs)
+    plt.plot(xs*1e3, values, marker='o', linestyle='-', label=f'stopień={N}')
+
+plt.xlabel('x [mm]')
+plt.ylabel('Estymowana temperatura [°C]')
+plt.title('Estymacja głębokości trawienia przy użyciu wielomaniów różnego stopnia')
 plt.grid(True)
+plt.legend()
 plt.show()

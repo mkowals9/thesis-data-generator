@@ -374,25 +374,27 @@ def generate_positive_only_sinusoid_distributions():
     periods = []
     delta_n_effs = []
 
-    frequencies = np.linspace(0.5, 8, 150)
-    x = np.linspace(-L / 2, L / 2, 15)
+    M = 30
+
+    frequencies = np.linspace(0.5, 8, 120)
+    x = np.linspace(-L / 2, L / 2, M)
 
     n_eff_shifts = [1.44, 1.441, 1.442, 1.443, 1.444, 1.445]
     for n_eff_shift in n_eff_shifts:
         stop_val = 1.45 - n_eff_shift
-        amplitudes = np.linspace(0.001, stop_val, 10)
+        amplitudes = np.linspace(0.001, stop_val, 30)
         cartesian_product_sin = itertools.product(amplitudes, frequencies)
         for index, combination in enumerate(cartesian_product_sin):
             amplitude, frequency = combination
             sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + n_eff_shift
             if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 1.45 and min(sine_wave) >= 1.44:
                 n_effs.append(sine_wave)
-                # plot_normalized(x, sine_wave)
+                #plot_normalized(x, sine_wave)
 
-    period_shifts = [5.350, 5.355, 5.360, 5.365, 5.370]
+    period_shifts = [5.350, 5.352, 5.355, 5.357, 5.360, 5.362, 5.365, 5.367, 5.370]
     for period_y_shift in period_shifts:
         stop_val = 5.40 - period_y_shift
-        amplitudes = np.linspace(0.01, stop_val, 30)
+        amplitudes = np.linspace(0.01, stop_val, 50)
         # period_y_shift = 5.350
         cartesian_product_sin = itertools.product(amplitudes, frequencies)
         for index, combination in enumerate(cartesian_product_sin):
@@ -400,9 +402,9 @@ def generate_positive_only_sinusoid_distributions():
             sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + period_y_shift
             if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 5.400 and min(sine_wave) >= 5.350:
                 periods.append(sine_wave)
-                # plot_normalized(x, sine_wave)
+                #plot_normalized(x, sine_wave)
 
-    delta_n_eff_shifts = [0.1, 0.2, 0.3, 0.4, 0.5]
+    delta_n_eff_shifts = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
     for delta_n_eff_y_shift in delta_n_eff_shifts:
         stop_val = 1 - delta_n_eff_y_shift
         amplitudes = np.linspace(0.01, stop_val, 150)
@@ -413,9 +415,9 @@ def generate_positive_only_sinusoid_distributions():
             sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + delta_n_eff_y_shift
             if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 1 and min(sine_wave) >= 0.1:
                 delta_n_effs.append(sine_wave)
-        # plot_normalized(x, sine_wave)
+            #plot_normalized(x, sine_wave)
 
-    X_z_shifts = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    X_z_shifts = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6]
     for X_z_shift in X_z_shifts:
         stop_val = 9.9 - X_z_shift
         amplitudes = np.linspace(0.5, stop_val, 150)
@@ -426,13 +428,13 @@ def generate_positive_only_sinusoid_distributions():
             sine_wave = amplitude * np.sin(2 * np.pi * frequency * x / L) + amplitude + X_z_shift
             if min(sine_wave) != max(sine_wave) and max(sine_wave) <= 9.9 and min(sine_wave) >= 0.1:
                 X_zs.append(sine_wave)
-        # plot_normalized(x, sine_wave)
+            #plot_normalized(x, sine_wave)
 
     print("Saving to file")
-    np.save("./input_data_generated/sin_n_eff_new_shifts.npy", np.asarray(n_effs))
-    np.save("./input_data_generated/sin_period_new_shifts.npy", np.asarray(periods))
-    np.save("./input_data_generated/sin_delta_n_eff_new_shifts.npy", np.asarray(delta_n_effs))
-    np.save("./input_data_generated/sin_X_z_new_shifts.npy", np.asarray(X_zs))
+    np.save("./input_data_generated/sin_n_eff_new_shifts_30_2105.npy", np.asarray(n_effs))
+    np.save("./input_data_generated/sin_period_new_shifts_30_2105.npy", np.asarray(periods))
+    np.save("./input_data_generated/sin_delta_n_eff_new_shifts_30_2105.npy", np.asarray(delta_n_effs))
+    np.save("./input_data_generated/sin_X_z_new_shifts_30_2105.npy", np.asarray(X_zs))
 
 
 if __name__ == '__main__':

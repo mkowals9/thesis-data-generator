@@ -11,7 +11,7 @@ from display_data import display_data, display_sections_data
 with open('model_config.json', 'r') as file:
     config = json.load(file)
 
-N = 95000  # ile przykladow (wykresow) chcemy
+N = 120000  # ile przykladow (wykresow) chcemy
 L = config["L"]  # tu w metrach
 num_points = config["num_points"]  # liczba dlugosci fal
 start_value = config["start_value"]  # początkowy zakres fal
@@ -19,12 +19,12 @@ end_value = config["end_value"]  # końcowy zakres fal
 wavelengths = np.linspace(start_value, end_value, num_points)  # dlugosci fal
 fringe = config["fringe"]
 
-n_effs = np.load('./input_data_generated/sin_n_eff_new_shifts.npy')
-delta_n_effs = np.load('./input_data_generated/sin_delta_n_eff_new_shifts.npy')
-periods = np.load('./input_data_generated/sin_period_new_shifts.npy')
-Xzs = np.load('./input_data_generated/sin_X_z_new_shifts.npy')
+n_effs = np.load('./input_data_generated/sin_n_eff_new_shifts_30_2105.npy')
+delta_n_effs = np.load('./input_data_generated/sin_delta_n_eff_new_shifts_30_2105.npy')
+periods = np.load('./input_data_generated/sin_period_new_shifts_30_2105.npy')
+Xzs = np.load('./input_data_generated/sin_X_z_new_shifts_30_2105.npy')
 
-M = 15  # na ile sekcji dzielimy siatke
+M = 30  # na ile sekcji dzielimy siatke
 # condition_for_M = M < (2 * n_eff * L) // bragg_wavelength
 delta_z = L / M  # dlugosc i-tego odcinka siatki
 ct_prem = str(datetime.datetime.now().timestamp()).replace(".", "_")
@@ -455,7 +455,7 @@ def positive_sin_calculate(i):
 
         # ustalamy parametry per sekcja
 
-        n = 40
+        n = M + i - 3
 
         random.seed(random.gauss() + i + M + n)
         random_value_distr = random.randint(0, len(n_effs) - 1)
@@ -516,7 +516,7 @@ def positive_sin_calculate(i):
             # final_transmittance.append(1 - reflectance)
 
         max_value = max([sublist[1] for sublist in final_reflectance])
-        if max_value > 0.01:
+        if max_value > 0.005:
             # all_examples_wavelengths.append(wavelengths)
             all_examples_reflectances.append(final_reflectance)
             all_examples_delta_n_eff.append(delta_n_eff_all_sections)
@@ -553,15 +553,15 @@ def positive_sin_calculate(i):
             print(f"Done example {example_index} on chunk {i}")
 
     # np.save(f"./results/model_input_wavelengths_chunk_15{i}.npy", np.array(all_examples_wavelengths))
-    np.save(f"./results/sinusoid/model_input_reflectances_chunk_35{i}.npy", np.array(all_examples_reflectances))
-    np.save(f"./results/sinusoid/model_input_delta_n_eff_chunk_35{i}.npy", np.array(all_examples_delta_n_eff))
-    np.save(f"./results/sinusoid/model_input_period_chunk_35{i}.npy", np.array(all_examples_period))
-    np.save(f"./results/sinusoid/model_input_n_eff_chunk_35{i}.npy", np.array(all_examples_n_eff))
-    np.save(f"./results/sinusoid/model_input_X_z_chunk_35{i}.npy", np.array(all_examples_X_z))
+    np.save(f"./results/sinusoid/model_input_reflectances_chunk_2105{i}.npy", np.array(all_examples_reflectances))
+    np.save(f"./results/sinusoid/model_input_delta_n_eff_chunk_2105{i}.npy", np.array(all_examples_delta_n_eff))
+    np.save(f"./results/sinusoid/model_input_period_chunk_2105{i}.npy", np.array(all_examples_period))
+    np.save(f"./results/sinusoid/model_input_n_eff_chunk_2105{i}.npy", np.array(all_examples_n_eff))
+    np.save(f"./results/sinusoid/model_input_X_z_chunk_2105{i}.npy", np.array(all_examples_X_z))
 
 
 if __name__ == '__main__':
-    n_threads = 15
+    n_threads = 17
     threads = []
     for i in range(n_threads):
         t = Process(target=positive_sin_calculate, args=(i,))
