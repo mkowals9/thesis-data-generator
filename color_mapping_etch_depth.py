@@ -126,7 +126,7 @@ xs = np.linspace(-L/2, L/2, len(estimated_temperatures))
 # plt.grid(True)
 # plt.show()
 
-N_values = [3, 4, 5, 6, 8, 11]
+N_values = [2, 3, 4, 6, 8]
 plt.figure(figsize=(10, 6))
 
 for N in N_values:
